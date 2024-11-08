@@ -1,4 +1,4 @@
-# 🍽️ Foodstuffs Recommendation App
+# 🍲 Foodstuffs Recommendation
 
 A recommendation system designed to help you find similar food products based on a given item. This application consists of three main components:
 
@@ -7,7 +7,16 @@ A recommendation system designed to help you find similar food products based on
 - 🧑‍🍳 **API**: The backend service to access to predictions make with FastAPI.
 - 📊 **Dashboard**: A Streamlit-powered frontend for visualizing product recommendations make withe Streamlit.
 
-## 🗂️ Project Structure
+## 🚀 Getting Started
+
+### Prerequisites
+
+To run this project, ensure you have the following installed:
+
+- **Docker**: [Download Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose**: [Download Docker Compose](https://docs.docker.com/compose/install/)
+
+### 🏗️ Project Structure
 
 ```
 project-root
@@ -38,35 +47,25 @@ project-root
 
 2. **Build and start the containers**:
 
-   ```bash
-   docker-compose up --build
-   ```
+After installing Docker and Docker Compose, you can start the application by running the following command in the project root:
 
-3. **Access the services**:
+```bash
+docker-compose up --build
+```
+
+This command will build and launch the API, dashboard, and MLflow services as defined in the `docker-compose.yml` file.
+
+3. **🌐 Accessing the Services**:
 
    - **API**: [http://localhost:8881](http://localhost:8881) 🧑‍🍳
    - **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
    - **MLflow**: [http://localhost:8883](http://localhost:8883) 📈
 
-## 🐳 Docker Setup
+### 🔧 Development and Model Training
 
-Each service is defined in the Docker Compose file:
-
-- **API service**:
-
-  - **Container name**: `foodstuffs-recommendation-api`
-  - **Port**: `8881:8881`
-  - **Code directory**: `./api/src` (mounted to `/app/src` inside the container)
-
-- **Dashboard service**:
-
-  - **Container name**: `foodstuffs-recommendation-dashboard`
-  - **Port**: `8882:8882`
-  - **Code directory**: `./dashboard/src` (mounted to `/app/src` inside the container)
-
-- **MLflow service**:
-  - **Container name**: `foodstuffs-recommendation-mlflow`
-  - **Port**: `8883:8883`
+- **Model Training Scripts**: Located in the `training` directory.
+- **Datasets**: Place datasets in the `data` directory.
+- **Exploratory Analysis**: Use Jupyter notebooks located in the `notebooks` directory for research and exploration.
 
 ## 🚀 Usage
 
@@ -76,4 +75,4 @@ After starting the services, you can explore the following:
 - **Dashboard**: Interactively explore and visualize product recommendations.
 - **MLflow**: Track experiment metrics, parameters, and model performance.
 
-Enjoy exploring similar products and finding new favorites! 🥳
+Enjoy exploring similar products and finding new favorites products! 🥳
