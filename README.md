@@ -1,6 +1,10 @@
 # 🍲 Foodstuffs Recommendation
 
-A recommendation system designed to help you find similar food products based on a given item. This application consists of three main components:
+A recommendation system designed to help you find similar food products based on a given item.
+
+Enable consumers to choose alternative food substitutes to avoid food allergies, for example, or healthier or more environmentally-friendly alternatives.
+
+This application consists of three main components:
 
 - 🤖 **Training**: Machine learning training models script.
 - 📈 **MLflow**: Tracks the machine learning models and experiments.
@@ -76,3 +80,8 @@ After starting the services, you can explore the following:
 - **MLflow**: Track experiment metrics, parameters, and model performance.
 
 Enjoy exploring similar products and finding new favorites products! 🥳
+
+## ➕ Bonus
+
+1. Create a composite sustainability score based on packaging, CO2 emissions, and geographical origin of products, weighting each environmental factor according to its impact, and test the score by correlating it with product categories or processing levels.
+2. Use existing product data to train a machine learning model to predict a product's Nutri-Score or ecological score.
