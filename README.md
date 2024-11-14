@@ -49,7 +49,13 @@ project-root
    cd foodstuffs-recommendation
    ```
 
-2. **Build and start the containers**:
+2. **Download data**:
+
+   ```bash
+   wget https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz -P data
+   ```
+
+3. **Build and start the containers**:
 
 After installing Docker and Docker Compose, you can start the application by running the following command in the project root:
 
@@ -59,7 +65,7 @@ docker-compose up --build
 
 This command will build and launch the API, dashboard, and MLflow services as defined in the `docker-compose.yml` file.
 
-3. **🌐 Accessing the Services**:
+4. **🌐 Accessing the Services**:
 
    - **API**: [http://localhost:8881](http://localhost:8881) 🧑‍🍳
    - **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
