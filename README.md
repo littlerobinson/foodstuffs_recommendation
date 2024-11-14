@@ -44,16 +44,18 @@ project-root
 
 1. **Clone the repository**:
 
-   ```bash
-   git clone https://github.com/littlerobinson/foodstuffs-recommendation
-   cd foodstuffs-recommendation
-   ```
+```bash
+git clone https://github.com/littlerobinson/foodstuffs-recommendation
+cd foodstuffs-recommendation
+```
 
 2. **Download data**:
 
-   ```bash
-   wget https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz -P data
-   ```
+Needed if you want to play with notebooks.
+
+```bash
+wget https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz -P data
+```
 
 3. **Build and start the containers**:
 
