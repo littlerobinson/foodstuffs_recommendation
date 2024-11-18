@@ -1,6 +1,5 @@
 *.csv
 *.gz
-*.xz
 *.sh
 
 mlruns

@@ -1,4 +1,0 @@
-data:
-  raw_data_path: "data/raw/en.openfoodfacts.org.products.csv.gz"
-  processed_data_path: "data/processed/processed_dataset.csv"
-  

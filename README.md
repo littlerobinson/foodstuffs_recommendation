@@ -2,16 +2,14 @@
 
 A recommendation system designed to help you find similar food products based on a given item.
 
-This tool enables consumers to choose alternative food substitutes to avoid allergens, opt for healthier options, or select more eco-friendly alternatives.
+Enable consumers to choose alternative food substitutes to avoid food allergies, for example, or healthier or more environmentally-friendly alternatives.
 
-## 🧩 Project Components
+This application consists of three main components:
 
-This application consists of four main components:
-
-- 🤖 **Training**: Scripts for training machine learning models.
-- 📈 **MLflow**: Tracks and manages machine learning experiments and models.
-- 🧑‍🍳 **API**: A FastAPI backend service to handle recommendations.
-- 📊 **Dashboard**: A Streamlit-powered frontend for visualizing recommendations.
+- 🤖 **Training**: Machine learning training models script.
+- 📈 **MLflow**: Tracks the machine learning models and experiments.
+- 🧑‍🍳 **API**: The backend service to access to predictions make with FastAPI.
+- 📊 **Dashboard**: A Streamlit-powered frontend for visualizing product recommendations make withe Streamlit.
 
 ## 🚀 Getting Started
 
@@ -21,28 +19,24 @@ To run this project, ensure you have the following installed:
 
 - **Docker**: [Download Docker](https://docs.docker.com/get-docker/)
 - **Docker Compose**: [Download Docker Compose](https://docs.docker.com/compose/install/)
-- **Poetry** (optional, for dependency management if developing locally): [Install Poetry](https://python-poetry.org/docs/)
 
 ### 🏗️ Project Structure
 
 ```
-project-root/
+project-root
 ├── api/                    # API service directory
-│   ├── main.py             # Entrypoint for FastAPI
-├── dashboard/              # Dashboard service directory
-│   ├── main.py             # Entrypoint for Streamlit
+│   └── src/                # API source code
+├── dashboard/              # Dashboard (Streamlit) service directory
+│   └── src/                # Dashboard source code
+├── docker/                 # Dockerfiles for each service
+│   └── Dockerfile          # Multi-stage Dockerfile for building each component
 ├── training/               # Model training scripts
-│   ├── main.py             # Entrypoint for the ML pipeline
-│   ├── data/               # Data loading and preprocessing
-│   └── models/             # Model training and evaluation logic
+│   └── train_model.py      # Model training script
 ├── data/                   # Directory for datasets
-│   └── raw/                # Raw data storage
-│   └── processed/          # Processed data storage
+│   └── dataset.csv         # Example dataset file
 ├── notebooks/              # Jupyter notebooks for exploratory analysis
-├── docker/                 # Shared utilities and configuration
-│   └── Dockerfile          # Dockerfile for the project
-├── docker-compose.yml      # Docker Compose file for service orchestration
-├── Makefile                # Makefile for automating tasks
+│   └── exploratory_analysis.ipynb # Example notebook for research
+├── docker-compose.yml      # Docker Compose file to orchestrate the services
 └── README.md               # Project documentation
 ```
 
@@ -50,28 +44,28 @@ project-root/
 
 1. **Clone the repository**:
 
-   ```bash
-   git clone https://github.com/littlerobinson/foodstuffs-recommendation
-   cd foodstuffs-recommendation
-   ```
+```bash
+git clone https://github.com/littlerobinson/foodstuffs-recommendation
+cd foodstuffs-recommendation
+```
 
 2. **Download data**:
 
-   Place the dataset in the `data/raw` directory:
+Needed if you want to play with notebooks.
 
-   ```bash
-   wget https://static.openfoodfacts.org/data/raw/en.openfoodfacts.org.products.csv.gz -P data/raw
-   ```
+```bash
+wget https://static.openfoodfacts.org/data/en.openfoodfacts.org.products.csv.gz -P data
+```
 
 3. **Build and start the containers**:
 
-   With Docker and Docker Compose installed, start the application by running:
+After installing Docker and Docker Compose, you can start the application by running the following command in the project root:
 
-   ```bash
-   make docker_up
-   ```
+```bash
+docker-compose up --build
+```
 
-   This command will build and start the API, dashboard, and MLflow services as defined in the `docker-compose.yml` file.
+This command will build and launch the API, dashboard, and MLflow services as defined in the `docker-compose.yml` file.
 
 4. **🌐 Accessing the Services**:
 
@@ -79,40 +73,23 @@ project-root/
    - **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
    - **MLflow**: [http://localhost:8883](http://localhost:8883) 📈
 
-## 🔧 Development and Model Training
+### 🔧 Development and Model Training
 
-- **Model Training**: Run training scripts located in the `training` directory.
-- **Datasets**: Place any required datasets in the `data` directory.
-- **Exploratory Analysis**: Jupyter notebooks for research are available in the `notebooks` directory.
-
-### Using the Makefile
-
-To automate common tasks, you can use the Makefile. Here are the available commands:
-
-- `make docker_up`: Build and start the Docker containers for API, dashboard, and MLflow.
-- `make docker_down`: Stop and remove the Docker containers.
-- `make run`: Run the model training pipeline (starts the training process for the machine learning model).
-- `make install`: Install dependencies via Poetry.
-
-### Example
-
-If you want to start the services and train the model in one go, you can use:
-
-```bash
-make docker_up && make train
-```
+- **Model Training Scripts**: Located in the `training` directory.
+- **Datasets**: Place datasets in the `data` directory.
+- **Exploratory Analysis**: Use Jupyter notebooks located in the `notebooks` directory for research and exploration.
 
 ## 🚀 Usage
 
-After starting the services, you can:
+After starting the services, you can explore the following:
 
 - **API**: Make POST requests with product data to receive similar product recommendations.
 - **Dashboard**: Interactively explore and visualize product recommendations.
-- **MLflow**: Track metrics, hyperparameters, and model performance.
+- **MLflow**: Track experiment metrics, parameters, and model performance.
 
-Enjoy discovering new products and exploring healthier, allergen-free, or eco-friendly alternatives! 🥳
+Enjoy exploring similar products and finding new favorites products! 🥳
 
-## ➕ Advanced Features
+## ➕ Bonus
 
-1. **Sustainability Scoring**: Combine factors such as packaging, CO2 emissions, and product origins to create a custom environmental score. You can then analyze this score’s correlation with product categories and processing levels.
-2. **Nutri-Score Prediction**: Use product attributes to train a model that predicts a product’s Nutri-Score or eco-score.
+1. Create a composite sustainability score based on packaging, CO2 emissions, and geographical origin of products, weighting each environmental factor according to its impact, and test the score by correlating it with product categories or processing levels.
+2. Use existing product data to train a machine learning model to predict a product's Nutri-Score or ecological score.
