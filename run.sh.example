@@ -1,0 +1,10 @@
+#!/bin/bash
+
+docker run -it -p 8080:8080\
+ -e PORT=8080\
+ -e MLFLOW_TRACKING_URI="your-mlflow-url"\
+ -e AWS_ACCESS_KEY_ID="xxx"\
+ -e AWS_SECRET_ACCESS_KEY="xxx"\
+ -e AWS_ARTIFACT_S3_URI="s3://xxx/\
+ -e BACKEND_STORE_URI="postgresql://xxx"\
+ foodstuffs-recommendation python src/main.py --config training/src/config.yaml
