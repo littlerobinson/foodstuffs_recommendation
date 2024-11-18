@@ -5,7 +5,6 @@
 *.xz
 *.pkl
 data/product_images
-
 mlruns
 
 # Byte-compiled / optimized / DLL files
