@@ -23,4 +23,4 @@ def build_pipeline(raw_data_path, processed_data_path):
     # Save preprocessed dataset as csv for training
     df.to_csv(processed_data_path)
 
-    logger.infos("Build data pipeline, finish 🎉.")
+    logger.info("Build data pipeline, finish 🎉.")
