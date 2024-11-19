@@ -29,3 +29,24 @@ COLUMNS_TO_KEEP = [
     "salt_100g",
     "fruits-vegetables-nuts-estimate-from-ingredients_100g",
 ]
+
+NUMERIC_COLUMNS = [
+    "energy_100g",
+    "fat_100g",
+    "saturated-fat_100g",
+    "cholesterol_100g",
+    "sugars_100g",
+    "proteins_100g",
+    "salt_100g",
+    "fruits-vegetables-nuts-estimate-from-ingredients_100g",
+    "preprocessed_nutriscore_grade",
+    "preprocessed_ecoscore_grade",
+]
+CATEGORIAL_COLUMNS = [
+    "preprocessed_product_name",
+    "preprocessed_packaging_tags_lemmatized",
+    "preprocessed_categories_tags_lemmatized",
+    "preprocessed_ingredients_tags_lemmatized",
+    "preprocessed_ingredients_analysis_tags_lemmatized",
+    "preprocessed_main_category_lemmatized",
+]

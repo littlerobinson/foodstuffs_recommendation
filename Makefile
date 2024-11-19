@@ -19,12 +19,24 @@ docker_logs:
 install_deps:
 	@echo "Installing dependencies with Poetry..."
 	poetry install
-	poetry run python -m spacy download en_core_web_sm
+	poetry run python -m spacy download en_core_web_sm --config $(ML_CONFIG_PATH)
+
+# Load data from raw database
+load_data:
+	@echo "Load raw data..."
+	poetry run python training/main.py --load_data --config $(ML_CONFIG_PATH)
+
+# Run MLFlow
+mlflow:
+	@echo "Run MLFlow..."
+	poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
 
 # Run the main machine learning pipeline
 run:
-	@echo "Running the main pipeline..."
-	poetry run python training/main.py --config $(ML_CONFIG_PATH)
+	@echo "Running the main project pipeline..."
+	@bash ./secrets.sh
+	$(MAKE) load_data
+	$(MAKE) mlflow
 
 # Clean temporary and cache files
 clean:
@@ -37,12 +49,13 @@ clean:
 run_tests:
 	@echo "Running tests..."
 	poetry run python -m unittest discover -s tests/api
+
 	poetry run python -m unittest discover -s tests/training
 
 # Display available Makefile commands
 help:
 	@echo "Available Makefile commands:"
 	@echo "  make install_deps    - Install dependencies with Poetry"
-	@echo "  make run_pipeline    - Run the main machine learning pipeline"
+	@echo "  make run             - Run the main machine learning pipeline"
 	@echo "  make clean           - Remove temporary and cache files"
 	@echo "  make run_tests       - Run unit and integration tests"

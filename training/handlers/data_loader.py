@@ -30,7 +30,7 @@ def extract_raw_data(csv_file_path, chunk_size=10000, countries_tags="en:france"
             quoting=3,
         ):
             filtered_chunks = chunk[
-                (chunk["countries_tags"] == countries_tags)
+                (chunk["countries_tags"].str.contains(countries_tags, na=False))
                 & (chunk["ingredients_tags"].notna())
             ]
             filtered_chunks_list.append(filtered_chunks)
@@ -48,3 +48,10 @@ def extract_raw_data(csv_file_path, chunk_size=10000, countries_tags="en:france"
     except Exception as e:
         logger.error(f"Error loading data : {e}")
         return pd.DataFrame()
+
+
+def load_dataset(dataset_path, nrows=None):
+    if nrows is None:
+        return pd.read_csv(dataset_path)
+    else:
+        return pd.read_csv(dataset_path, nrows=nrows)

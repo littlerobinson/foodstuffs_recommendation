@@ -2,7 +2,7 @@ import re
 
 import en_core_web_sm
 import pandas as pd
-from handlers.text_processing import TextProcessing
+from helpers.text_processing import TextProcessing
 from spacy.lang.en.stop_words import STOP_WORDS
 from utils.logger import setup_logger
 

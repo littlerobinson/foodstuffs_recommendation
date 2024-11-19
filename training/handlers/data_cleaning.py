@@ -1,6 +1,6 @@
 from utils.logger import setup_logger
 
-from pipelines.data_params import COLUMNS_TO_KEEP
+from handlers.data_params import COLUMNS_TO_KEEP
 
 logger = setup_logger()
 
