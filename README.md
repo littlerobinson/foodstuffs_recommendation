@@ -33,12 +33,13 @@ project-root/
 │   ├── main.py             # Entrypoint for Streamlit
 ├── training/               # Model training scripts
 │   ├── main.py             # Entrypoint for the ML pipeline
-│   ├── data/               # Data loading and preprocessing
-│   └── models/             # Model training and evaluation logic
 ├── data/                   # Directory for datasets
 │   └── raw/                # Raw data storage
 │   └── processed/          # Processed data storage
+│   └── production/         # Clean database for API and Dashboard
+│   └── product_images/     # Product images storages for training with image
 ├── notebooks/              # Jupyter notebooks for exploratory analysis
+├── scripts/                # Project scripts
 ├── docker/                 # Shared utilities and configuration
 │   └── Dockerfile          # Dockerfile for the project
 ├── docker-compose.yml      # Docker Compose file for service orchestration
@@ -91,15 +92,20 @@ To automate common tasks, you can use the Makefile. Here are the available comma
 
 - `make docker_up`: Build and start the Docker containers for API, dashboard, and MLflow.
 - `make docker_down`: Stop and remove the Docker containers.
-- `make run`: Run the model training pipeline (starts the training process for the machine learning model).
-- `make install`: Install dependencies via Poetry.
+- `make docker_logs`: Visualize Docker logs for debugging.
+- `make run`: Run the main machine learning pipeline (starts the training process for the machine learning model).
+- `make load_data`: Load raw data using the configuration specified in `training/config.yaml`.
+- `make mlflow`: Launch MLflow tracking service for managing experiments.
+- `make install_deps`: Install dependencies with Poetry, including SpaCy's language model.
+- `make clean`: Remove temporary and cache files from the project.
+- `make run_tests`: Run unit and integration tests for both API and training components.
 
 ### Example
 
 If you want to start the services and train the model in one go, you can use:
 
 ```bash
-make docker_up && make train
+make docker_up && make run
 ```
 
 ## 🚀 Usage
