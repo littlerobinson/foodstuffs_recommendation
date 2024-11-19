@@ -4,9 +4,9 @@ import sys
 
 import mlflow
 import numpy as np
-import pandas as pd
 from handlers import data_loader
-from mlflow.models.signature import infer_signature
+from mlflow.models.signature import ModelSignature
+from mlflow.types import Schema, ColSpec
 from pipelines import data_pipeline, training_pipeline
 from utils.config import load_config
 from utils.logger import setup_logger
@@ -41,28 +41,46 @@ CATEGORIAL_COLUMNS = [
 ]
 
 
-def get_mlflow_signature(input_df, output_list):
-    categorical_features = input_df[CATEGORIAL_COLUMNS]
-    numeric_features = input_df[NUMERIC_COLUMNS]
-    input_data = pd.concat(
+def get_mlflow_signature():
+    input_schema = Schema(
         [
-            categorical_features.reset_index(drop=True),
-            numeric_features.reset_index(drop=True),
-        ],
-        axis=1,
+            ColSpec("string", "product_name"),
+            ColSpec("string", "packaging_tags"),
+            ColSpec("string", "categories_tags"),
+            ColSpec("string", "ingredients_tags"),
+            ColSpec("string", "ingredients_analysis_tags"),
+            ColSpec("string", "allergens"),
+            ColSpec("string", "traces_tags"),
+            ColSpec("string", "additives_tags"),
+            ColSpec("string", "nutriscore_grade"),
+            ColSpec("string", "food_groups_tags"),
+            ColSpec("string", "states_tags"),
+            ColSpec("string", "ecoscore_grade"),
+            ColSpec("string", "nutrient_levels_tags"),
+            ColSpec("string", "popularity_tags"),
+            ColSpec("string", "main_category"),
+            ColSpec("string", "image_url"),
+            ColSpec("string", "image_small_url"),
+            ColSpec("float", "energy_100g"),
+            ColSpec("float", "fat_100g"),
+            ColSpec("float", "saturated-fat_100g"),
+            ColSpec("float", "cholesterol_100g"),
+            ColSpec("float", "sugars_100g"),
+            ColSpec("float", "proteins_100g"),
+            ColSpec("float", "salt_100g"),
+            ColSpec("float", "fruits-vegetables-nuts-estimate-from-ingredients_100g"),
+        ]
     )
 
-    return infer_signature(
-        input_data,  # Input data for prediction
-        output_list,  # Prediction output
-    )
+    signature = ModelSignature(inputs=input_schema)
+
+    return signature
 
 
 def main(config_path: str):
     # load config variables
     config = load_config(config_path)
     processed_data_path = config["data"]["processed_data_path"]
-    clean_data_path = config["data"]["clean_data_path"]
     n_clusters = config["training"]["n_clusters"]
     encoding_method_name = config["training"]["encoding_method_name"]
     mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
@@ -84,11 +102,6 @@ def main(config_path: str):
 
     # Launch mlflow pipeline
     if args.mlflow:
-        # Get first lign of raw dataframe to create mlflow input signature
-        clean_data_first = pd.read_csv(
-            clean_data_path, nrows=1, sep="\t", engine="python", quoting=3
-        )
-
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         mlflow.set_experiment(mlflow_experiment_name)
 
@@ -101,10 +114,13 @@ def main(config_path: str):
                 n_clusters=n_clusters,
                 encoding_method_name=encoding_method_name,
             )
-            output_list = labels[:10].tolist()
-            mlflow_signature = get_mlflow_signature(
-                input_df=clean_data_first, output_list=output_list
-            )
+            if labels is not None and len(labels) > 0:
+                mlflow.log_param("labels", str(labels[:10]))
+            else:
+                logger.warning(
+                    "No labels provided for training, metrics will not be logged."
+                )
+            mlflow_signature = get_mlflow_signature()
             # mlflow.log_param("n_clusters", n_clusters)
             # mlflow.log_param("encoding_method", encoding_method_name)
             # logger.info(f"Log to MLFlow, experiment_name: {mlflow_experiment_name}")
