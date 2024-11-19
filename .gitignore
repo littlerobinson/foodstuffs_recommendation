@@ -1,3 +1,10 @@
+*.csv
+*.gz
+*.xz
+*.sh
+
+mlruns
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
