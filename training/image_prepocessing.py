@@ -3,7 +3,7 @@ from utils.logger import setup_logger
 
 import os
 import pandas as pd
-from tflite_support.task import vision
+from tflite_support.task import vision ## Run 
 import io
 from PIL import Image
 import numpy as np
