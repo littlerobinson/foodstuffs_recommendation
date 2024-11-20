@@ -1,5 +1,6 @@
 # Variables
 ML_CONFIG_PATH = training/config.yaml
+SECRET_FILE = secrets.sh
 
 # Build and run docker env
 docker_up:
@@ -15,6 +16,12 @@ docker_down:
 docker_logs:
 	docker-compose logs -f
 
+# Export secrets
+export_secrets:
+	@echo "Export secrets..."
+	@chmod +x $(SECRET_FILE)
+	@bash -c "source $(SECRET_FILE)"
+
 # Install dependencies with Poetry
 install_deps:
 	@echo "Installing dependencies with Poetry..."
@@ -27,14 +34,14 @@ load_data:
 	poetry run python training/main.py --load_data --config $(ML_CONFIG_PATH)
 
 # Run MLFlow
-mlflow:
+mlflow: export_secrets
 	@echo "Run MLFlow..."
 	poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
 
 # Run the main machine learning pipeline
-run:
+run: export_secrets
 	@echo "Running the main project pipeline..."
-	@bash ./secrets.sh
+	# source ./secrets.sh
 	$(MAKE) load_data
 	$(MAKE) mlflow
 
