@@ -1,0 +1,18 @@
+data:
+  raw_data_path: "data/raw/en.openfoodfacts.org.products.csv.gz"
+  processed_data_path: "data/processed/processed_dataset.csv"
+  clean_data_path: "data/processed/clean_dataset.csv"
+  clean_data_with_embed: "data/processed/clean_data_with_embeddings.csv"
+  production_data_path: "data/production/database.csv"
+  images_path: "data/product_images"
+  image_url_column: "image_url"
+  code_column: "code"
+
+training:
+  mlflow_experiment_name: "foodstuffs-recommendation"
+  mlflow_tracking_uri: "https://mlflow.luciole.dev"
+  mlflow_model_name: "kmeans"
+  encoding_method_name: "svd" # [svd, pca]
+  n_clusters: 525
+recommandatons:
+  top_n: 10
