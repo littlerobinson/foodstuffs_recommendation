@@ -38,6 +38,11 @@ run:
 	$(MAKE) load_data
 	$(MAKE) mlflow
 
+# Download all the images
+download_images:
+	@echo "Downloading all the images..."
+	poetry run python training/images_downloader.py --config $(ML_CONFIG_PATH)
+
 # Clean temporary and cache files
 clean:
 	@echo "Cleaning up temporary files..."
