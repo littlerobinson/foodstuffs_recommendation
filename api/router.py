@@ -3,17 +3,24 @@ from fastapi import APIRouter, HTTPException, Response
 import json
 
 router = APIRouter(
-    prefix="/fsr",
+    prefix="/product",
     responses={404: {"description": "Not found"}},
 )
 
 
-@router.get("/")
-async def root():
+@router.get("/find_similar_products_text")
+async def find_similar_products():
     """
-    Root endpoint to check the status of the foodstuffs recommendation API.
+    Recherche des produits similaires dans le même cluster en évitant ceux contenant un allergène spécifique.
+
+    Parameters:
+        df (DataFrame): Le DataFrame contenant les données produits.
+        product_name (str): Nom du produit de référence.
+        allergen (str): Allergène à éviter, si spécifié.
+        top_n (int): Nombre de produits similaires à retourner.
+        encoding_method (function): La méthode d'encodage des données catégorielles.
 
     Returns:
-        dict: A message indicating the API is working.
+        DataFrame: Les produits similaires triés par similarité de cosinus.
     """
-    return {"message": "Hello foodstuffs recommendation 🎉"}
+    return {"message": "find_similar_products route 🎉"}

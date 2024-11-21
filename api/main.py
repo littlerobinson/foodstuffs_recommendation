@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from . import router
+import router
 
 tags_metadata = [
     {
@@ -25,4 +25,4 @@ app.include_router(router.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Foodstuff Recommendation API !"}
+    return {"message": "Hello foodstuffs recommendation 🎉"}
