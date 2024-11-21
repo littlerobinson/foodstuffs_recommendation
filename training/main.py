@@ -99,7 +99,7 @@ def main(config_path: str):
                 f"Data loaded and preprocessed successfully: {len(processed_data)} rows available."
             )
     else:
-        processed_data = data_loader.load_dataset(processed_data_path)
+        processed_data = data_loader.load_dataset(processed_data_path, nrows=10000)
 
     # Launch mlflow pipeline
     if args.mlflow:

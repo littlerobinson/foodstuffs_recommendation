@@ -43,7 +43,7 @@ def download_all_images(df_path, image_url_column, code_column, save_dir):
     Télécharge toutes les images à partir des URLs fournies dans un DataFrame.
 
     Parameters:
-        df (DataFrame): Le DataFrame contenant les URLs des images et les codes uniques.
+        df_path (str): Le chemin du DataFrame contenant les URLs des images et les codes uniques.
         image_url_column (str): Le nom de la colonne contenant les URLs des images.
         code_column (str): Le nom de la colonne contenant les codes uniques.
         save_dir (str): Le dossier où enregistrer les images.

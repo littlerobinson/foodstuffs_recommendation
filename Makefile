@@ -45,6 +45,16 @@ run: export_secrets
 	$(MAKE) load_data
 	$(MAKE) mlflow
 
+# Download all the images
+download_images:
+	@echo "Downloading all the images..."
+	poetry run python training/images_downloader.py --config $(ML_CONFIG_PATH)
+
+# Run clustering on image
+run_image_clustering:
+	@echo "Running clustering on image..."
+	poetry run python training/image_clustering.py --config $(ML_CONFIG_PATH)
+
 # Clean temporary and cache files
 clean:
 	@echo "Cleaning up temporary files..."
