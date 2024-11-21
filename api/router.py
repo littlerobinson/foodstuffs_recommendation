@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Response
 
-import json
+import handler
+
+from models.target_product_model import TargetProductModel
 
 router = APIRouter(
     prefix="/product",
@@ -8,19 +10,22 @@ router = APIRouter(
 )
 
 
-@router.get("/find_similar_products_text")
-async def find_similar_products():
+@router.get("/test")
+async def test():
     """
-    Recherche des produits similaires dans le même cluster en évitant ceux contenant un allergène spécifique.
-
-    Parameters:
-        df (DataFrame): Le DataFrame contenant les données produits.
-        product_name (str): Nom du produit de référence.
-        allergen (str): Allergène à éviter, si spécifié.
-        top_n (int): Nombre de produits similaires à retourner.
-        encoding_method (function): La méthode d'encodage des données catégorielles.
-
-    Returns:
-        DataFrame: Les produits similaires triés par similarité de cosinus.
+    test route
     """
-    return {"message": "find_similar_products route 🎉"}
+    return {"message": "Test API route work 🎉"}
+
+
+@router.post("/find_similar_products_text")
+async def find_similar_products_text(data: TargetProductModel):
+    """
+    Search for similar products in the same cluster, avoiding those containing a specific allergen.
+    """
+    code = data.code
+    top_n = data.top_n
+    allergen = data.allergen
+
+    response = await handler.find_similar_products_text(code, allergen, top_n)
+    return Response(content=response, media_type="application/json")

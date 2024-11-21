@@ -150,6 +150,9 @@ class Training:
         df = self.__impute_numeric_data(df, NUMERIC_COLUMNS)
         df = self.__scale_numeric_data(df, NUMERIC_COLUMNS)
         categorical_features = self.encoding_method(df, CATEGORIAL_COLUMNS)
+        categorical_features.to_csv(
+            "data/production/categorical_features.csv", index=False
+        )
         features = pd.concat(
             [categorical_features, df[NUMERIC_COLUMNS].reset_index(drop=True)], axis=1
         )
@@ -170,7 +173,7 @@ class Training:
             "calinski_harabasz_metric": calinski_harabasz_metric,
         }
 
-        return kmeans, metrics, labels
+        return kmeans, features, metrics, labels
 
     def train_dbscan(self, df, eps=0.5, min_samples=5, metric="euclidean"):
         """

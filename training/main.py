@@ -4,6 +4,7 @@ import sys
 
 import mlflow
 import numpy as np
+import pandas as pd
 from handlers import data_loader
 from mlflow.models.signature import ModelSignature
 from mlflow.types import Schema, ColSpec
@@ -82,6 +83,9 @@ def main(config_path: str):
     config = load_config(config_path)
     processed_data_path = config["data"]["processed_data_path"]
     production_data_path = config["data"]["production_data_path"]
+    production_encoded_features_path = config["data"][
+        "production_encoded_features_path"
+    ]
     n_clusters = config["training"]["n_clusters"]
     encoding_method_name = config["training"]["encoding_method_name"]
     mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
@@ -99,7 +103,7 @@ def main(config_path: str):
                 f"Data loaded and preprocessed successfully: {len(processed_data)} rows available."
             )
     else:
-        processed_data = data_loader.load_dataset(processed_data_path, nrows=10000)
+        processed_data = data_loader.load_dataset(processed_data_path)
 
     # Launch mlflow pipeline
     if args.mlflow:
@@ -110,7 +114,7 @@ def main(config_path: str):
         mlflow.autolog(log_models=False)
         experiment = mlflow.get_experiment_by_name(mlflow_experiment_name)
         with mlflow.start_run(experiment_id=experiment.experiment_id) as run:
-            model, metrics, labels = training_pipeline.build_pipeline(
+            model, features, metrics, labels = training_pipeline.build_pipeline(
                 data=processed_data,
                 n_clusters=n_clusters,
                 encoding_method_name=encoding_method_name,
@@ -121,6 +125,7 @@ def main(config_path: str):
                 processed_data["cluster_text"] = labels
                 logger.info("Save data as production database.")
                 processed_data.to_csv(production_data_path, index=False)
+                features.to_csv(production_encoded_features_path, index=False)
             else:
                 logger.warning(
                     "No labels provided for training, metrics will not be logged."
