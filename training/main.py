@@ -81,6 +81,7 @@ def main(config_path: str):
     # load config variables
     config = load_config(config_path)
     processed_data_path = config["data"]["processed_data_path"]
+    production_data_path = config["data"]["production_data_path"]
     n_clusters = config["training"]["n_clusters"]
     encoding_method_name = config["training"]["encoding_method_name"]
     mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
@@ -116,6 +117,10 @@ def main(config_path: str):
             )
             if labels is not None and len(labels) > 0:
                 mlflow.log_param("labels", str(labels[:10]))
+                logger.info("Save labels to data.")
+                processed_data["cluster_text"] = labels
+                logger.info("Save data as production database.")
+                processed_data.to_csv(production_data_path, index=False)
             else:
                 logger.warning(
                     "No labels provided for training, metrics will not be logged."
