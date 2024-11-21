@@ -88,10 +88,10 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
         embeddings_array.append(embedding_array)
 
     # Ajoute les embeddings au DataFrame
-    df["image_embedding"] = embeddings
+    # df["image_embedding"] = embeddings
     df["embedding_array"] = embeddings_array
-    df.to_csv("data/clean_datase_with_embeddings.csv")
-    return df
+    df.to_pickle("data/clean_dataset_with_embeddings.pkl", index=False)
+    return None
 
 
 def main(config_path: str):
