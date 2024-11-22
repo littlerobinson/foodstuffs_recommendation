@@ -120,70 +120,65 @@ def find_similar_products_img(
     top_n,
 ):
     """
-    Trouve les produits similaires dans le même cluster basé sur la similarité cosinus, en utilisant le code du produit.
-    Le DataFrame retourné contient uniquement les produits du même cluster et une colonne 'similarity_img'
-    avec les scores de similarité, triés par ordre décroissant.
+    Finds similar products in the same cluster based on cosine similarity, using the product code.
+    The returned DataFrame contains only the products from the same cluster and a 'similarity_img' column
+    with similarity scores, sorted in descending order.
 
     Parameters:
-        product_code (str/int): Le code du produit pour lequel trouver des produits similaires.
-        df_path (str): Chemin vers le fichier CSV contenant les informations sur les produits.
-        product_code_column (str): Nom de la colonne contenant les codes des produits.
-        embedding_prefix (str): Préfixe des colonnes contenant les dimensions des embeddings des produits.
-        cluster_column (str): Nom de la colonne contenant les clusters des produits.
-        top_n (int): Nombre de produits similaires à retourner.
+        product_code (str/int): The code of the product for which to find similar products.
+        top_n (int): Number of similar products to return.
 
     Returns:
-        str: JSON contenant les produits similaires.
+        str: JSON containing the similar products.
     """
     product_code_column="code"
     embedding_prefix="embedding_"
     cluster_column="cluster_emb"
 
-    # Charger le DataFrame
+    # Load the DataFrame
     df = pd.read_csv("./data/clean_dataset_clusters.csv")
 
     print(df[[product_code_column]].dtypes)
 
-    # Vérifier que les colonnes nécessaires existent
+    # Check that the required columns exist
     embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
-    # print(embedding_columns)
     if not embedding_columns:
         raise KeyError(
-            f"Les colonnes avec le préfixe '{embedding_prefix}' doivent exister dans le DataFrame."
+            f"Columns with the prefix '{embedding_prefix}' must exist in the DataFrame."
         )
 
-    # Trouver l'entrée pour le produit donné
+    # Find the entry for the given product
     target_row = df[df[product_code_column] == product_code]
     if target_row.empty:
         raise ValueError(
-            f"Le produit avec le code '{product_code}' n'existe pas dans le DataFrame."
+            f"The product with the code '{product_code}' does not exist in the DataFrame."
         )
 
-    # Obtenir l'embedding et le cluster du produit cible
+    # Get the embedding and cluster of the target product
     target_embedding = target_row[embedding_columns].values
     if target_embedding.shape[0] == 0 or np.isnan(target_embedding).any():
         raise ValueError(
-            f"L'embedding du produit avec le code '{product_code}' est vide ou invalide."
+            f"The embedding for the product with the code '{product_code}' is empty or invalid."
         )
     target_cluster = target_row.iloc[0][cluster_column]
 
-    # Filtrer les produits appartenant au même cluster
+    # Filter products belonging to the same cluster
     cluster_products = df[df[cluster_column] == target_cluster]
 
-    # Supprimer la ligne du produit cible du cluster pour éviter la comparaison avec lui-même
+    # Remove the target product row from the cluster to avoid self-comparison
     cluster_products = cluster_products[
         cluster_products[product_code_column] != product_code
     ]
 
-    # Calculer les similarités cosinus avec les produits du cluster
+    # Compute cosine similarities with products in the cluster
     cluster_embeddings = cluster_products[embedding_columns].values
     similarities = cosine_similarity(target_embedding, cluster_embeddings).flatten()
 
-    # Ajouter la colonne 'similarity_img' au DataFrame des produits du même cluster
+    # Add the 'similarity_img' column to the DataFrame of products in the same cluster
     cluster_products = cluster_products.copy()
     cluster_products["similarity_img"] = similarities
 
-    # Trier par similarité et garder les top_n
+    # Sort by similarity and keep the top_n products
     cluster_products = cluster_products.sort_values(
         by="similarity_img", ascending=False
     )

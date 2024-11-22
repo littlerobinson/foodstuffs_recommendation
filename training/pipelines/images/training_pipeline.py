@@ -10,45 +10,43 @@ from sklearn.metrics import (
 
 def perform_clustering(df_path, embedding_prefix, n_clusters, save_df_path):
     """
-    Applique l'algorithme de clustering KMeans sur des colonnes d'embeddings éclatées dans un DataFrame.
+    Applies the KMeans clustering algorithm on exploded embedding columns in a DataFrame.
 
     Parameters:
-        df_path (str): Le chemin du DataFrame contenant les embeddings.
-        embedding_prefix (str): Le préfixe des colonnes contenant les dimensions des embeddings.
-        n_clusters (int): Le nombre de clusters optimal déterminé.
-        save_df_path (str): Le chemin du DataFrame final avec la colonne 'cluster' ajoutée.
+        df_path (str): The path to the DataFrame containing the embeddings.
+        embedding_prefix (str): The prefix of the columns containing the embedding dimensions.
+        n_clusters (int): The optimal number of clusters determined.
+        save_df_path (str): The path to the final DataFrame with the added 'cluster' column.
 
     Returns:
         Tuple: KMeans object, metrics dictionary, cluster labels.
     """
-    # Charger le DataFrame
+    # Load the DataFrame
     df = pd.read_csv(df_path)
 
-    # Filtrer les colonnes correspondant aux dimensions des embeddings
+    # Filter columns corresponding to the embedding dimensions
     embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
 
     if not embedding_columns:
-        raise ValueError(
-            f"Aucune colonne trouvée avec le préfixe '{embedding_prefix}'."
-        )
+        raise ValueError(f"No columns found with the prefix '{embedding_prefix}'.")
 
-    # Filtrer les lignes avec des valeurs valides pour toutes les dimensions
+    # Filter rows with valid values for all dimensions
     valid_embeddings_df = df.dropna(subset=embedding_columns)
 
-    # Extraire les embeddings sous forme de matrice NumPy
+    # Extract embeddings as a NumPy matrix
     valid_embeddings = valid_embeddings_df[embedding_columns].values
 
-    # Vérifier que les embeddings sont 2D
+    # Ensure the embeddings are 2D
     if valid_embeddings.ndim != 2:
         raise ValueError(
             "Les embeddings doivent être une matrice 2D (chaque ligne étant un vecteur d'embedding)."
         )
 
-    # Appliquer le clustering
+    # Apply clustering
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(valid_embeddings)
 
-    # Calcul des métriques
+    # Apply clustering
     inertia = kmeans.inertia_
     silhouette_metric = silhouette_score(valid_embeddings, cluster_labels)
     davies_bouldin_metric = davies_bouldin_score(valid_embeddings, cluster_labels)
@@ -61,18 +59,18 @@ def perform_clustering(df_path, embedding_prefix, n_clusters, save_df_path):
         "calinski_harabasz_metric": calinski_harabasz_metric,
     }
 
-    # Ajouter les labels des clusters au DataFrame
+    # Add cluster labels to the DataFrame
     valid_embeddings_df = valid_embeddings_df.copy()
     valid_embeddings_df["cluster_emb"] = cluster_labels
 
-    # Convertir en entier si nécessaire
+    # Convert to integer if necessary
     valid_embeddings_df["cluster_emb"] = valid_embeddings_df["cluster_emb"].astype(int)
 
-    # Vérifier si "cluster_emb" existe dans df, le supprimer si nécessaire
+    # Check if "cluster_emb" exists in the original DataFrame, remove it if necessary
     if "cluster_emb" in df.columns:
         df = df.drop(columns=["cluster_emb"])
 
-    # Fusionner les résultats avec le DataFrame original
+    # Merge results with the original DataFrame
     df = df.merge(
         valid_embeddings_df[["cluster_emb"]],
         left_index=True,

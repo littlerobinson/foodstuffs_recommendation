@@ -48,12 +48,17 @@ run: export_secrets
 # Download all the images
 download_images:
 	@echo "Downloading all the images..."
-	poetry run python training/images_downloader.py --config $(ML_CONFIG_PATH)
+	poetry run python scripts/images_downloader.py --config $(ML_CONFIG_PATH)
+
+run_add_embeddings:
+	@echo "Add embeddings on the dataset from the image files..."
+	poetry run python scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
+	
 
 # Run clustering on image
 run_image_clustering:
 	@echo "Running clustering on image..."
-	poetry run python training/image_clustering.py --config $(ML_CONFIG_PATH)
+	poetry run python scripts/image_clustering.py --config $(ML_CONFIG_PATH)
 
 # Clean temporary and cache files
 clean:

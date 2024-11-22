@@ -14,33 +14,31 @@ import numpy as np
 
 def get_signature(df_path, embedding_prefix):
     """
-    Crée la signature des données d'entrée et de sortie pour le modèle.
+    Creates the input and output data signature for the model.
 
     Parameters:
-        df_path (str): Le chemin vers le fichier pickle contenant les données.
-        embedding_prefix (str): Le préfixe des colonnes contenant les dimensions des embeddings.
+        df_path (str): The path to the pickle file containing the data.
+        embedding_prefix (str): The prefix of the columns containing the embedding dimensions.
 
     Returns:
-        ModelSignature: La signature des données d'entrée.
+        ModelSignature: The input data signature.
     """
-    # Charger le DataFrame
+    # Load the DataFrame
     df = pd.read_csv(df_path)
 
-    # Filtrer les colonnes correspondant aux dimensions des embeddings
+    # Filter columns corresponding to the embedding dimensions
     embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
 
     if not embedding_columns:
-        raise ValueError(
-            f"Aucune colonne trouvée avec le préfixe '{embedding_prefix}'."
-        )
+        raise ValueError(f"No columns found with the prefix '{embedding_prefix}'.")
 
-    # Vérifier que les colonnes d'embedding ne contiennent pas de valeurs manquantes
+    # Check that the embedding columns do not contain missing values
     valid_embeddings_df = df[embedding_columns].dropna()
 
-    # Construire un exemple d'entrée pour la signature
+    # Build an input example for the signature
     input_example = valid_embeddings_df.head(1)  # Utiliser une seule ligne pour l'exemple
 
-    # Inférer la signature à partir de l'exemple
+    # Infer the signature from the example
     signature = infer_signature(input_example)
 
     return signature
