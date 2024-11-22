@@ -90,7 +90,30 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     # Ajoute les embeddings au DataFrame
     # df["image_embedding"] = embeddings
     df["embedding_array"] = embeddings_array
-    df.to_pickle("data/clean_dataset_with_embeddings.pkl", index=False)
+
+    # Vérifier que la colonne embedding_array contient des valeurs valides
+    valid_embeddings = df["embedding_array"].apply(lambda x: isinstance(x, np.ndarray) and len(x) > 0)
+
+    # Obtenir la longueur des embeddings valides
+    if valid_embeddings.any():
+        len_valid_embeddings = len(df.loc[valid_embeddings, "embedding_array"].iloc[0])
+        print(len_valid_embeddings)
+    else:
+        raise ValueError("Aucun embedding valide trouvé dans la colonne 'embedding_array'.")
+
+    # Create a new DataFrame for embedding columns
+    embedding_columns = pd.DataFrame(
+        df["embedding_array"].apply(
+            lambda x: x if isinstance(x, np.ndarray) and len(x) == len_valid_embeddings else [None] * len_valid_embeddings
+        ).tolist(),
+        columns=[f"embedding_{i}" for i in range(len_valid_embeddings)]
+    )
+
+    # Concatenate the new columns with the original DataFrame
+    df = pd.concat([df.drop(columns=["embedding_array"]), embedding_columns], axis=1)
+
+    df.to_csv("data/clean_dataset_with_embeddings.csv", index=False)
+
     return None
 
 

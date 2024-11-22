@@ -2,14 +2,14 @@ data:
   raw_data_path: "data/raw/en.openfoodfacts.org.products.csv.gz"
   processed_data_path: "data/processed/processed_dataset.csv"
   clean_data_path: "data/processed/clean_dataset.csv"
-  clean_data_with_embed: "data/clean_dataset_with_embeddings.pkl"
+  clean_data_with_embed: "data/clean_dataset_with_embeddings.csv"
   data_with_clusters: "data/clean_dataset_clusters.csv"
   production_data_path: "data/production/database.csv"
   production_encoded_features_path: "data/production/production_encoded_features.csv"
   images_path: "data/product_images"
   image_url_column: "image_url"
   code_column: "code"
-  embedding_column: "embedding_array"
+  embedding_prefix: "embedding"
 
 training:
   mlflow_experiment_name: "foodstuffs-recommendation"
