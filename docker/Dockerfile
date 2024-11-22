@@ -79,5 +79,6 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 RUN apt-get update & apt-get clean
 
 COPY ./api /app
+COPY ./data/production /app/data/production
 
 CMD uvicorn main:app --host 0.0.0.0 --port $PORT

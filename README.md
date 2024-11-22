@@ -118,6 +118,27 @@ After starting the services, you can:
 
 Enjoy discovering new products and exploring healthier, allergen-free, or eco-friendly alternatives! 🥳
 
+## 🚀 Deployment exemple on Heroku
+
+```bash
+# Build the project images
+docker compose build
+
+#  Connection to Heroku and the container registry
+heroku login
+heroku container:login
+
+# Tag image for Heroku register
+docker tag <container-name> registry.heroku.com/<container-name>/web
+
+#  Push image to Heroku
+docker push registry.heroku.com/<container-name>/web
+
+# Deploying the image
+heroku container:release web -a <container-name>
+
+```
+
 ## ➕ Advanced Features
 
 1. **Sustainability Scoring**: Combine factors such as packaging, CO2 emissions, and product origins to create a custom environmental score. You can then analyze this score’s correlation with product categories and processing levels.
