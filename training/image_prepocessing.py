@@ -114,9 +114,6 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
 
     df.to_csv("data/clean_dataset_with_embeddings.csv", index=False)
 
-    return None
-
-
 def main(config_path: str):
     # Load configuration from file
     config = load_config(config_path)
