@@ -28,6 +28,8 @@ services:
       target: dashboard
     volumes:
       - ./dashboard:/app
+      - ./data:/app/data
+
     ports:
       - "8882:8882"
     networks:

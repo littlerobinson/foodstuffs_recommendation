@@ -7,40 +7,36 @@ from sklearn.metrics import (
     silhouette_score,
 )
 
-def perform_clustering(df_path, embedding_column, n_clusters, save_df_path):
+
+def perform_clustering(df_path, embedding_prefix, n_clusters, save_df_path):
     """
-    Applique l'algorithme de clustering KMeans sur une colonne d'embeddings d'un DataFrame.
+    Applique l'algorithme de clustering KMeans sur des colonnes d'embeddings éclatées dans un DataFrame.
 
     Parameters:
         df_path (str): Le chemin du DataFrame contenant les embeddings.
-        embedding_column (str): Le nom de la colonne contenant les embeddings.
+        embedding_prefix (str): Le préfixe des colonnes contenant les dimensions des embeddings.
         n_clusters (int): Le nombre de clusters optimal déterminé.
         save_df_path (str): Le chemin du DataFrame final avec la colonne 'cluster' ajoutée.
 
     Returns:
-        DataFrame: Le DataFrame d'origine avec une colonne supplémentaire 'cluster' contenant les labels des clusters.
+        Tuple: KMeans object, metrics dictionary, cluster labels.
     """
-    # Load dataset
-    df = pd.read_pickle(df_path)
+    # Charger le DataFrame
+    df = pd.read_csv(df_path)
 
-    # Filtrer les lignes avec des embeddings valides
-    valid_embeddings_df = df[df[embedding_column].notnull()].copy()
-    embeddings = valid_embeddings_df[embedding_column].tolist()
+    # Filtrer les colonnes correspondant aux dimensions des embeddings
+    embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
 
-    # Vérifier la consistance des embeddings (même dimension pour tous)
-    try:
-        valid_embeddings = np.array(
-            [e for e in embeddings if len(e) == len(embeddings[0])]
-        )
-    except IndexError:
+    if not embedding_columns:
         raise ValueError(
-            "Les embeddings contiennent des valeurs invalides ou inconsistantes."
+            f"Aucune colonne trouvée avec le préfixe '{embedding_prefix}'."
         )
 
-    if len(valid_embeddings) != len(embeddings):
-        print(
-            f"Warning: {len(embeddings) - len(valid_embeddings)} invalid embeddings were removed."
-        )
+    # Filtrer les lignes avec des valeurs valides pour toutes les dimensions
+    valid_embeddings_df = df.dropna(subset=embedding_columns)
+
+    # Extraire les embeddings sous forme de matrice NumPy
+    valid_embeddings = valid_embeddings_df[embedding_columns].values
 
     # Vérifier que les embeddings sont 2D
     if valid_embeddings.ndim != 2:
@@ -52,6 +48,7 @@ def perform_clustering(df_path, embedding_column, n_clusters, save_df_path):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(valid_embeddings)
 
+    # Calcul des métriques
     inertia = kmeans.inertia_
     silhouette_metric = silhouette_score(valid_embeddings, cluster_labels)
     davies_bouldin_metric = davies_bouldin_score(valid_embeddings, cluster_labels)
@@ -65,10 +62,13 @@ def perform_clustering(df_path, embedding_column, n_clusters, save_df_path):
     }
 
     # Ajouter les labels des clusters au DataFrame
+    valid_embeddings_df = valid_embeddings_df.copy()
     valid_embeddings_df["cluster_emb"] = cluster_labels
+
+    # Convertir en entier si nécessaire
     valid_embeddings_df["cluster_emb"] = valid_embeddings_df["cluster_emb"].astype(int)
 
-    # Vérifier si "cluster_emb" existe dans df si oui le supprimer
+    # Vérifier si "cluster_emb" existe dans df, le supprimer si nécessaire
     if "cluster_emb" in df.columns:
         df = df.drop(columns=["cluster_emb"])
 
@@ -80,4 +80,5 @@ def perform_clustering(df_path, embedding_column, n_clusters, save_df_path):
         how="left",
     )
     df.to_csv(save_df_path, index=False)
+
     return kmeans, metrics, cluster_labels

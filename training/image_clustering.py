@@ -5,7 +5,7 @@ from pipelines.images.training_pipeline import perform_clustering
 import mlflow
 import numpy as np
 import argparse
-
+from joblib import load
 
 logger = setup_logger()
 
@@ -14,34 +14,33 @@ import pandas as pd
 import numpy as np
 
 
-def get_signature(df_path, embedding_column):
+def get_signature(df_path, embedding_prefix):
     """
     Crée la signature des données d'entrée et de sortie pour le modèle.
 
     Parameters:
         df_path (str): Le chemin vers le fichier pickle contenant les données.
-        embedding_column (str): Le nom de la colonne contenant les embeddings.
+        embedding_prefix (str): Le préfixe des colonnes contenant les dimensions des embeddings.
 
     Returns:
         ModelSignature: La signature des données d'entrée.
     """
     # Charger le DataFrame
-    df = pd.read_pickle(df_path)
+    df = pd.read_csv(df_path)
 
-    # Récupérer les embeddings valides
-    valid_embeddings_df = df[df[embedding_column].notnull()].copy()
-    embeddings = valid_embeddings_df[embedding_column].tolist()
+    # Filtrer les colonnes correspondant aux dimensions des embeddings
+    embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
 
-    # Convertir les embeddings en un tableau NumPy 2D
-    valid_embeddings = np.array([e for e in embeddings if len(e) == len(embeddings[0])])
+    if not embedding_columns:
+        raise ValueError(
+            f"Aucune colonne trouvée avec le préfixe '{embedding_prefix}'."
+        )
 
-    if valid_embeddings.ndim != 2:
-        raise ValueError("Les embeddings doivent être une matrice 2D.")
+    # Vérifier que les colonnes d'embedding ne contiennent pas de valeurs manquantes
+    valid_embeddings_df = df[embedding_columns].dropna()
 
-    # Construire un DataFrame d'exemple pour la signature d'entrée
-    input_example = pd.DataFrame(
-        valid_embeddings, columns=[f"dim_{i}" for i in range(valid_embeddings.shape[1])]
-    )
+    # Construire un exemple d'entrée pour la signature
+    input_example = valid_embeddings_df.head(1)  # Utiliser une seule ligne pour l'exemple
 
     # Inférer la signature à partir de l'exemple
     signature = infer_signature(input_example)
@@ -54,7 +53,7 @@ def main(config_path: str):
     config = load_config(config_path)
 
     df_path = config["data"]["clean_data_with_embed"]
-    embedding_column = config["data"]["embedding_column"]
+    embedding_prefix = config["data"]["embedding_prefix"]
     save_df_path = config["data"]["data_with_clusters"]
     n_clusters = config["image_training"]["n_clusters"]
     mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
@@ -68,23 +67,23 @@ def main(config_path: str):
     experiment = mlflow.get_experiment_by_name(mlflow_experiment_name)
     with mlflow.start_run(experiment_id=experiment.experiment_id) as run:
         model, metrics, labels = perform_clustering(
-            df_path, embedding_column, n_clusters, save_df_path
+            df_path, embedding_prefix, n_clusters, save_df_path
         )
-    for metric in metrics:
-        mlflow.log_metric(metric, metrics[metric])
-    cluster_count = np.unique(labels).size
-    mlflow.log_metric("cluster_count", cluster_count)
+        for metric in metrics:
+            mlflow.log_metric(metric, metrics[metric])
+        cluster_count = np.unique(labels).size
+        mlflow.log_metric("cluster_count", cluster_count)
 
-    # Generate signature
-    mlflow_signature = get_signature(df_path, embedding_column)
+        # Generate signature
+        mlflow_signature = get_signature(df_path, embedding_prefix)
 
-    # Log the sklearn model and register as version
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path=mlflow_experiment_name,
-        registered_model_name=mlflow_model_name,
-        signature=mlflow_signature,
-    )
+        # Log the sklearn model and register as version
+        mlflow.sklearn.log_model(
+            sk_model=model,
+            artifact_path=mlflow_experiment_name,
+            registered_model_name=mlflow_model_name,
+            signature=mlflow_signature,
+        )
 
 if __name__ == "__main__":
     logger.info("🚀  Clustering starting 🚀")
