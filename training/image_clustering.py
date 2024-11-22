@@ -1,11 +1,9 @@
 from utils.config import load_config
-from handlers.download_image import download_all_images
 from utils.logger import setup_logger
 from pipelines.images.training_pipeline import perform_clustering
 import mlflow
 import numpy as np
 import argparse
-from joblib import load
 
 logger = setup_logger()
 
