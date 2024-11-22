@@ -3,7 +3,7 @@ from utils.logger import setup_logger
 
 import os
 import pandas as pd
-from tflite_support.task import vision ## Run on python 3.8
+from tflite_support.task import vision  ## Run on python 3.8
 import io
 from PIL import Image
 import numpy as np
@@ -22,6 +22,7 @@ print("Path to model files:", path)
 
 # Initialise le modèle d'embedder pour les images
 image_embedder = vision.ImageEmbedder.create_from_file(path)
+
 
 def get_image_embedding(image_path):
     """
@@ -47,17 +48,14 @@ def get_image_embedding(image_path):
         return None
 
 
-def get_all_image_embeddings(df_path, code_column, save_dir):
+def add_all_image_embeddings(df_path, code_column, save_dir):
     """
-    Génère des embeddings pour toutes les images déjà téléchargées localement.
+    Ajoute le embeddings au dataframe et l'enregistre dans un fichier CSV.
 
     Parameters:
         df (DataFrame): Le DataFrame contenant les codes uniques pour retrouver les images.
         code_column (str): Le nom de la colonne contenant les codes uniques.
         save_dir (str): Le dossier où sont enregistrées les images.
-
-    Returns:
-        DataFrame: Un DataFrame contenant les embeddings de chaque image dans une colonne `image_embedding`.
     """
     df = pd.read_csv(df_path)
     embeddings = []
@@ -92,21 +90,31 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     df["embedding_array"] = embeddings_array
 
     # Vérifier que la colonne embedding_array contient des valeurs valides
-    valid_embeddings = df["embedding_array"].apply(lambda x: isinstance(x, np.ndarray) and len(x) > 0)
+    valid_embeddings = df["embedding_array"].apply(
+        lambda x: isinstance(x, np.ndarray) and len(x) > 0
+    )
 
     # Obtenir la longueur des embeddings valides
     if valid_embeddings.any():
         len_valid_embeddings = len(df.loc[valid_embeddings, "embedding_array"].iloc[0])
         print(len_valid_embeddings)
     else:
-        raise ValueError("Aucun embedding valide trouvé dans la colonne 'embedding_array'.")
+        raise ValueError(
+            "Aucun embedding valide trouvé dans la colonne 'embedding_array'."
+        )
 
     # Create a new DataFrame for embedding columns
     embedding_columns = pd.DataFrame(
-        df["embedding_array"].apply(
-            lambda x: x if isinstance(x, np.ndarray) and len(x) == len_valid_embeddings else [None] * len_valid_embeddings
-        ).tolist(),
-        columns=[f"embedding_{i}" for i in range(len_valid_embeddings)]
+        df["embedding_array"]
+        .apply(
+            lambda x: (
+                x
+                if isinstance(x, np.ndarray) and len(x) == len_valid_embeddings
+                else [None] * len_valid_embeddings
+            )
+        )
+        .tolist(),
+        columns=[f"embedding_{i}" for i in range(len_valid_embeddings)],
     )
 
     # Concatenate the new columns with the original DataFrame
@@ -122,7 +130,11 @@ def main(config_path: str):
     code_column = config["data"]["code_column"]
     save_dir = config["data"]["images_path"]
 
-    get_all_image_embeddings(df_path, code_column=code_column, save_dir=save_dir,)
+    add_all_image_embeddings(
+        df_path,
+        code_column=code_column,
+        save_dir=save_dir,
+    )
 
 
 if __name__ == "__main__":
