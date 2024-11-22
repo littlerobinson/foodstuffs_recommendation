@@ -11,7 +11,9 @@ def build_pipeline(data, n_clusters, encoding_method_name):
     # Launch training pipeline
     training = Training(encoding_method_name=encoding_method_name)
 
-    model, metrics, labels = training.train_kmeans(df=data, n_clusters=n_clusters)
+    model, features, metrics, labels = training.train_kmeans(
+        df=data, n_clusters=n_clusters
+    )
     # model, metrics, labels = training.train_dbscan(df=data)
 
-    return model, metrics, labels
+    return model, features, metrics, labels

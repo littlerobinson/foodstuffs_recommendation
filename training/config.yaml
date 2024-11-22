@@ -5,6 +5,7 @@ data:
   clean_data_with_embed: "data/clean_dataset_with_embeddings.pkl"
   data_with_clusters: "data/clean_dataset_clusters.csv"
   production_data_path: "data/production/database.csv"
+  production_encoded_features_path: "data/production/production_encoded_features.csv"
   images_path: "data/product_images"
   image_url_column: "image_url"
   code_column: "code"

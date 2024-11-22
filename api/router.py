@@ -1,19 +1,31 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Response
 
-import json
+import handler
+
+from models.target_product_model import TargetProductModel
 
 router = APIRouter(
-    prefix="/fsr",
+    prefix="/product",
     responses={404: {"description": "Not found"}},
 )
 
 
-@router.get("/")
-async def root():
+@router.get("/test")
+async def test():
     """
-    Root endpoint to check the status of the foodstuffs recommendation API.
+    test route
+    """
+    return {"message": "Test API route work 🎉"}
 
-    Returns:
-        dict: A message indicating the API is working.
+
+@router.post("/find_similar_products_text")
+async def find_similar_products_text(data: TargetProductModel):
     """
-    return {"message": "Hello foodstuffs recommendation 🎉"}
+    Search for similar products in the same cluster, avoiding those containing a specific allergen.
+    """
+    code = data.code
+    top_n = data.top_n
+    allergen = data.allergen
+
+    response = await handler.find_similar_products_text(code, allergen, top_n)
+    return Response(content=response, media_type="application/json")

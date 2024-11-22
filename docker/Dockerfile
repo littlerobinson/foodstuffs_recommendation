@@ -61,7 +61,7 @@ RUN apt-get update && apt-get install -y curl & apt-get clean
 
 COPY ./dashboard /app
 
-CMD streamlit run src/streamlit_app.py --server.port $PORT --server.address=0.0.0.0
+CMD streamlit run streamlit_app.py --server.port $PORT --server.address=0.0.0.0
 
 
 FROM python:3.12.7-slim-bookworm AS api
@@ -79,5 +79,6 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 RUN apt-get update & apt-get clean
 
 COPY ./api /app
+COPY ./data/production /app/data/production
 
-CMD uvicorn src.main:app --host 0.0.0.0 --port $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT

@@ -10,6 +10,8 @@ services:
       target: api # target in Dockerfile
     volumes:
       - ./api:/app
+      - ./data:/app/data
+    command: uvicorn main:app --host 0.0.0.0 --port 8881 --reload
     ports:
       - "8881:8881"
     networks:
