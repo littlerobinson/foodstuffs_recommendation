@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response
 
 import handler
 
-from models.target_product_model import TargetProductModel
+from models.target_product_model import TargetProductModel, TargetProductModelImage
 
 router = APIRouter(
     prefix="/product",
@@ -28,4 +28,16 @@ async def find_similar_products_text(data: TargetProductModel):
     allergen = data.allergen
 
     response = await handler.find_similar_products_text(code, allergen, top_n)
+    return Response(content=response, media_type="application/json")
+
+
+@router.post("/find_similar_products_image")
+async def find_similar_products_image(data: TargetProductModelImage):
+    """
+    Search for similar products in the same cluster base on image
+    """
+    code = data.code
+    top_n = data.top_n
+
+    response = handler.find_similar_products_img(code, top_n)
     return Response(content=response, media_type="application/json")
