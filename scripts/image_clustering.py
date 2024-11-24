@@ -1,6 +1,12 @@
-from utils.config import load_config
-from utils.logger import setup_logger
-from pipelines.images.training_pipeline import perform_clustering
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+
+from training.utils.config import load_config
+from training.utils.logger import setup_logger
+from training.pipelines.images.training_pipeline import perform_clustering
 import mlflow
 import numpy as np
 import argparse

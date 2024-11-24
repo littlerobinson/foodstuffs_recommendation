@@ -5,16 +5,16 @@ SECRET_FILE = secrets.sh
 # Build and run docker env
 docker_up:
 	@echo "Build and run docker env..."
-	docker-compose up --build
+	docker compose up --build
 
 # Stop containers
 docker_down:
 	@echo "Stop containers..."
-	docker-compose down
+	docker compose down
 
 # Visualize docker logs
 docker_logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 # Export secrets
 export_secrets:
@@ -22,11 +22,18 @@ export_secrets:
 	@chmod +x $(SECRET_FILE)
 	@bash -c "source $(SECRET_FILE)"
 
+# Run docker-cli
+run_docker_cli:
+	@echo "Run docker-cli..."
+	docker compose exec python-cli bash
+
+# From here the code the following command has to be run in the docker previouly created
+
 # Install dependencies with Poetry
 install_deps:
 	@echo "Installing dependencies with Poetry..."
 	poetry install
-	poetry run python -m spacy download en_core_web_sm --config $(ML_CONFIG_PATH)
+	poetry run python -m spacy download en_core_web_sm
 
 # Load data from raw database
 load_data:
@@ -50,10 +57,19 @@ download_images:
 	@echo "Downloading all the images..."
 	poetry run python scripts/images_downloader.py --config $(ML_CONFIG_PATH)
 
+# Open another terminal
+# Run python cli 3.8
 run_add_embeddings:
-	@echo "Add embeddings on the dataset from the image files..."
-	poetry run python scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
-	
+	@echo "Add embeddings on the dataset from the image files using python 3.8 ..."
+	docker compose exec python-cli-3.8 python scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
+
+# # Add embeddings: Has to be run on python 3.8
+# run_add_embeddings:
+# 	@echo "Add embeddings on the dataset from the image files..."
+# 	poetry run python scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
+
+# Come bach on the terminal with python cli 3.12 
+
 
 # Run clustering on image
 run_image_clustering:
