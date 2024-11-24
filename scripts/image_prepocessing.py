@@ -1,5 +1,11 @@
-from utils.config import load_config
-from utils.logger import setup_logger
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+
+from training.utils.config import load_config
+from training.utils.logger import setup_logger
 
 import os
 import pandas as pd
@@ -117,7 +123,7 @@ def main(config_path: str):
     # Load configuration from file
     config = load_config(config_path)
 
-    df_path = config["data"]["clean_data_path"]
+    df_path = config["data"][" "]
     code_column = config["data"]["code_column"]
     save_dir = config["data"]["images_path"]
 

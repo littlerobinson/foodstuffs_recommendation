@@ -30,7 +30,7 @@ project-root/
 ├── api/                    # API service directory
 │   ├── main.py             # Entrypoint for FastAPI
 ├── dashboard/              # Dashboard service directory
-│   ├── main.py             # Entrypoint for Streamlit
+│   ├── streamlit_app.py    # Entrypoint for Streamlit
 ├── training/               # Model training scripts
 │   ├── main.py             # Entrypoint for the ML pipeline
 ├── data/                   # Directory for datasets
@@ -88,17 +88,35 @@ project-root/
 
 ### Using the Makefile
 
-To automate common tasks, you can use the Makefile. Here are the available commands:
+### Using the Makefile
 
-- `make docker_up`: Build and start the Docker containers for API, dashboard, and MLflow.
-- `make docker_down`: Stop and remove the Docker containers.
-- `make docker_logs`: Visualize Docker logs for debugging.
-- `make run`: Run the main machine learning pipeline (starts the training process for the machine learning model).
-- `make load_data`: Load raw data using the configuration specified in `training/config.yaml`.
-- `make mlflow`: Launch MLflow tracking service for managing experiments.
-- `make install_deps`: Install dependencies with Poetry, including SpaCy's language model.
-- `make clean`: Remove temporary and cache files from the project.
-- `make run_tests`: Run unit and integration tests for both API and training components.
+To automate common tasks, you can use the Makefile. Below is the list of commands in the correct execution order and with comments on their purpose:
+
+   - `make docker_up`: Builds and starts the Docker containers for the API, dashboard, and MLflow.
+   - `make docker_down`: Stops and removes the running Docker containers.
+   - `make docker_logs`: Displays live logs from the running Docker containers for debugging.
+   - `make export_secrets`: Exports secrets from the `secrets.sh` file by making it executable.
+   
+   *Run the Docker CLI for Python 3.8*
+
+   - `make run_docker_cli`: Opens an interactive terminal session within the Python 3.12 Docker container.
+   - `make install_deps`: Installs all project dependencies and downloads SpaCy's `en_core_web_sm` model.
+   - `make load_data`: Processes and loads raw data into the database, as specified in `training/config.yaml`.
+   - `make mlflow`: Starts MLFlow for tracking experiments and model performance.
+   - `make run`: Combines the `load_data` and `mlflow` commands to execute the full training pipeline.
+   - `make download_images`: Downloads images needed for the project based on the configuration file.
+
+   *Run the Docker CLI for Python 3.8*
+   - `make run_python_cli_3_8`: Opens an interactive terminal session within the Python 3.8 Docker container.
+   - `make run_add_embeddings`: Generates embeddings from image files and adds them to the dataset. (Requires Python 3.8)
+
+   *On the Docker CLI for Python 3.12*
+   - `make run_image_clustering`: Clusters images using embeddings, as specified in the configuration file.
+
+   - `make clean`: Removes temporary files, caches, and Python bytecode.
+
+   - `make run_tests`: Executes all unit and integration tests for both the API and training modules.
+
 
 ### Example
 

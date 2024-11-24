@@ -1,0 +1,6 @@
+pandas
+numpy
+pyyaml
+tflite_support
+pillow
+kagglehub

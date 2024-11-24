@@ -83,3 +83,38 @@ COPY ./data/production /app/data/production
 COPY ./db /app/db
 
 CMD uvicorn main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 90
+
+FROM python:3.12.7-slim-bookworm AS python-cli
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y make
+
+# Install poetry
+RUN pip install poetry==1.8.4
+
+ENV VIRTUAL_ENV=/venv/.venv \
+    PATH="/venv/.venv/bin:$PATH"
+
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
+COPY Makefile /app
+# COPY ./data /app/data
+
+CMD ["bash"]
+
+FROM python:3.8.20-slim-bullseye AS python-cli-3.8
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y make && apt install -y libusb-1.0-0
+
+COPY ./docker/requirements.txt .
+# COPY ./data /app/data
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY Makefile /app
+# COPY ./data/production /app/data/production
+
+CMD ["bash"]

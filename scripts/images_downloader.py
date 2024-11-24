@@ -1,6 +1,10 @@
-from utils.config import load_config
-from handlers.download_image import download_all_images
-from utils.logger import setup_logger
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from training.utils.config import load_config
+from training.handlers.download_image import download_all_images
+from training.utils.logger import setup_logger
 
 logger = setup_logger()
 

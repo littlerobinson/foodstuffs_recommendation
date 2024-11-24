@@ -50,6 +50,30 @@ services:
     networks:
       - foodstuffsrecommendationnetwork
 
+  python-cli:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: python-cli
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    networks:
+      - foodstuffsrecommendationnetwork
+
+  python-cli-3.8:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: python-cli-3.8
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    networks:
+      - foodstuffsrecommendationnetwork
+
 networks:
   foodstuffsrecommendationnetwork:
     driver: bridge
