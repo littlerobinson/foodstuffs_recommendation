@@ -123,7 +123,7 @@ def main(config_path: str):
     # Load configuration from file
     config = load_config(config_path)
 
-    df_path = config["data"][" "]
+    df_path = config["data"]["clean_data_path"]
     code_column = config["data"]["code_column"]
     save_dir = config["data"]["images_path"]
 
