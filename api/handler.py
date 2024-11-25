@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy import create_engine, text
 
-engine = create_engine("sqlite:///data/production/database.db")
+# engine = create_engine("sqlite:///data/production/database.db")
 
 NUMERIC_COLUMNS = [
     "energy_100g",
@@ -370,101 +370,6 @@ async def sql_find_similar_products_text(code, allergen=None, top_n=10):
     )
 
     return response.to_pandas().T.to_json()
-
-
-async def sql_without_cat_feat_find_similar_products_text(
-    code, allergen=None, top_n=10
-):
-    """
-    Finds similar products within the same cluster, avoiding those containing a specific allergen.
-    Use SQL database.
-
-    Parameters:
-        code (str): Code of the reference product.
-        allergen (str): Allergen to avoid, if specified.
-        top_n (int): Number of similar products to return.
-
-    Returns:
-        DataFrame: Similar products sorted by cosine similarity.
-    """
-    df_polars = pl.read_csv("./data/production/database.csv", schema_overrides=DTYPES)
-
-    # 2. Convertir le DataFrame Polars en DataFrame Pandas
-    df_pandas = df_polars.to_pandas()
-
-    # 3. Créer une connexion SQLAlchemy à votre base de données
-    # Remplacez la chaîne de connexion par celle correspondant à votre base de données
-    DATABASE_URL = "sqlite:///foodstuffs-recommendation.db"
-    engine = create_engine(DATABASE_URL)
-
-    # 4. Enregistrer le DataFrame Pandas dans la base de données
-    df_pandas.to_sql("product_data", con=engine, if_exists="replace", index=False)
-
-    # 1. Identify the cluster of the reference product
-    with engine.connect() as connection:
-        result = connection.execute(
-            text(
-                """
-            SELECT cluster_text, {}
-            FROM database
-            WHERE code = :code
-        """.format(", ".join(NUMERIC_COLUMNS))
-            ),
-            {"code": code},
-        )
-        row = result.fetchone()
-        product_cluster = row["cluster_text"]
-        target_features = np.array([row[col] for col in NUMERIC_COLUMNS])
-
-    # 2. Load and merge categorical features
-    with engine.connect() as connection:
-        result = connection.execute(
-            text("""
-            SELECT *
-            FROM categorical_features
-        """)
-        )
-        encoded_categorical_features = pd.DataFrame(
-            result.fetchall(), columns=result.keys()
-        )
-
-    # 3. Filter products within the same cluster
-    with engine.connect() as connection:
-        query = """
-            SELECT *
-            FROM database
-            WHERE cluster_text = :product_cluster
-        """
-        if allergen:
-            query += """
-                AND LOWER(allergens) NOT LIKE :allergen
-                AND LOWER(traces_tags) NOT LIKE :allergen
-            """
-        result = connection.execute(
-            text(query),
-            {"product_cluster": product_cluster, "allergen": f"%{allergen.lower()}%"},
-        )
-        similar_cluster_products = pd.DataFrame(
-            result.fetchall(), columns=result.keys()
-        )
-
-    # 4. Select only numeric columns for similarity calculation
-    similar_cluster_numeric_features = similar_cluster_products[NUMERIC_COLUMNS].values
-
-    # 5. Compute cosine similarity
-    similarities = cosine_similarity(
-        [target_features], similar_cluster_numeric_features
-    ).flatten()
-
-    # 6. Add similarity scores to the filtered products
-    similar_cluster_products["similarity_text"] = similarities
-
-    # 7. Sort and return the most similar products
-    response = similar_cluster_products.sort_values(
-        by="similarity_text", ascending=False
-    ).head(top_n)
-
-    return response.T.to_json()
 
 
 def find_similar_products_img(
