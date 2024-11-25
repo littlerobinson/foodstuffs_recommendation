@@ -39,7 +39,7 @@ def perform_clustering(df_path, embedding_prefix, n_clusters, save_df_path):
     # Ensure the embeddings are 2D
     if valid_embeddings.ndim != 2:
         raise ValueError(
-            "Les embeddings doivent être une matrice 2D (chaque ligne étant un vecteur d'embedding)."
+            "The embeddings must be a 2D matrix (each line being an embedding vector).s"
         )
 
     # Apply clustering
