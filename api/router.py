@@ -3,7 +3,7 @@ from fastapi import APIRouter, Response
 import handler
 
 from models.target_product_model import TargetProductModel
-from models.target_product_model_image import  TargetProductModelImage
+from models.target_product_model_image import TargetProductModelImage
 
 router = APIRouter(
     prefix="/product",
