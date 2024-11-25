@@ -19,10 +19,11 @@ services:
       - foodstuffsrecommendationnetwork
 
   dashboard:
-    container_name: foodstuffs-recommendation-dashboard
+    container_name: foodstuffs-recommendation-dash
     environment:
       - PORT=8882
-    image: foodstuffs-recommendation-dashboard
+      - API_URL=http://foodstuffs-recommendation-api:8881
+    image: foodstuffs-recommendation-dash
     build:
       context: .
       dockerfile: ./docker/Dockerfile
@@ -51,6 +52,7 @@ services:
       - foodstuffsrecommendationnetwork
 
   python-cli:
+    container_name: python-cli
     build:
       context: .
       dockerfile: ./docker/Dockerfile
@@ -61,6 +63,7 @@ services:
     tty: true
 
   python-cli-3.8:
+    container_name: python-cli-3.8
     build:
       context: .
       dockerfile: ./docker/Dockerfile

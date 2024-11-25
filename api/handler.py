@@ -2,9 +2,6 @@ import pandas as pd
 import polars as pl
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from sqlalchemy import create_engine, text
-
-# engine = create_engine("sqlite:///data/production/database.db")
 
 NUMERIC_COLUMNS = [
     "energy_100g",
@@ -106,8 +103,7 @@ async def find_similar_products_text(code, allergen=None, top_n=10):
         DataFrame: Similar products sorted by cosine similarity.
     """
     # Load the dataset
-    # df = pd.read_csv("./data/production/database.csv")
-    df = pl.read_csv("./data/production/database.csv", schema_overrides=DTYPES)
+    df = pl.read_csv("./data/production/database_text_api.csv", schema_overrides=DTYPES)
 
     # 1. Identify the cluster of the reference product
     product_cluster = (
@@ -187,9 +183,9 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
         DataFrame: Similar products sorted by cosine similarity.
     """
     # Load the dataset lazily
-    df = pl.scan_csv("./data/production/database.csv", schema_overrides=DTYPES)
+    df = pl.scan_csv("./data/production/database_text_api.csv", schema_overrides=DTYPES)
 
-    # 1. Identify the cluster of the reference product
+    # Identify the cluster of the reference product
     product_cluster = (
         df.filter(pl.col("code") == str(code))
         .select("cluster_text")
@@ -203,44 +199,45 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
         .to_numpy()[0]
     )
 
-    # 2. Load and merge categorical features lazily
-    encoded_categorical_features = pl.scan_csv(
-        "./data/production/categorical_features.csv"
-    )
+    cluster_features_combined = df
 
-    # Concatenate the DataFrames horizontally
-    cluster_features_combined = pl.concat(
-        [df, encoded_categorical_features], how="horizontal"
-    )
-
-    # 3. Filter products within the same cluster
+    # Filter products within the same cluster
     similar_cluster_products = cluster_features_combined.filter(
         pl.col("cluster_text") == product_cluster
     )
 
-    # 4. Filter out products containing the specified allergen, if necessary
+    # Filter out products containing the specified allergen, if necessary
     if allergen:
         similar_cluster_products = similar_cluster_products.filter(
             ~pl.col("allergens").str.to_lowercase().str.contains(allergen.lower())
             & ~pl.col("traces_tags").str.to_lowercase().str.contains(allergen.lower())
         )
 
-    # 5. Select only numeric columns for similarity calculation
+    # Select only numeric columns for similarity calculation
     similar_cluster_numeric_features = (
         similar_cluster_products.select(NUMERIC_COLUMNS).collect().to_numpy()
     )
 
-    # 6. Compute cosine similarity
+    # Compute cosine similarity
     similarities = cosine_similarity(
         [target_features], similar_cluster_numeric_features
     ).flatten()
 
-    # 7. Add similarity scores to the filtered products
+    # Add similarity scores to the filtered products
     similar_cluster_products = similar_cluster_products.with_columns(
         pl.Series("similarity_text", similarities)
     )
 
-    # 8. Sort and return the most similar products
+    # Remove target if is in the results
+    if (
+        similar_cluster_products.filter(pl.col("code") == str(code)).collect().height
+        > 0
+    ):
+        similar_cluster_products = similar_cluster_products.filter(
+            pl.col("code") != str(code)
+        )
+
+    # Sort and return the most similar products
     response = (
         similar_cluster_products.sort(by="similarity_text", descending=True)
         .select(
@@ -259,114 +256,6 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
         )
         .head(top_n)
         .collect()
-    )
-
-    return response.to_pandas().T.to_json()
-
-
-async def sql_find_similar_products_text(code, allergen=None, top_n=10):
-    """
-    Finds similar products within the same cluster, avoiding those containing a specific allergen.
-    Uses SQLite database instead of CSV files.
-
-    Parameters:
-        code (str): Code of the reference product.
-        allergen (str): Allergen to avoid, if specified.
-        top_n (int): Number of similar products to return.
-
-    Returns:
-        DataFrame: Similar products sorted by cosine similarity.
-    """
-    # Charger les deux DataFrames
-    # df_polars = pl.read_csv("./data/production/database.csv", schema_overrides=DTYPES)
-    # df_polars2 = pl.read_csv("./data/production/categorical_features.csv")
-
-    # Ajouter la colonne 'code' de product_data dans categorical_features
-    # df_polars2 = df_polars2.with_columns(df_polars["code"].alias("code"))
-
-    # Sauvegarder dans la base de données
-    DATABASE_URL = "sqlite:///db/foodstuffs-recommendation.db"
-    engine = create_engine(DATABASE_URL)
-
-    # df_polars.to_pandas().to_sql(
-    #     "product_data", con=engine, if_exists="replace", index=False
-    # )
-    # df_polars2.to_pandas().to_sql(
-    #     "categorical_features", con=engine, if_exists="replace", index=False
-    # )
-    # 1. Identifier le cluster du produit de référence
-    with engine.connect() as connection:
-        query = text("SELECT cluster_text FROM product_data WHERE code = :code")
-        result = connection.execute(query, {"code": str(code)}).fetchone()
-        product_cluster = result[0]
-
-        # Obtenir les caractéristiques numériques du produit cible
-        quoted_columns = [f'"{col}"' for col in NUMERIC_COLUMNS]
-        query = text(
-            "SELECT "
-            + ", ".join(quoted_columns)
-            + " FROM product_data WHERE code = :code"
-        )
-        target_features = connection.execute(query, {"code": str(code)}).fetchone()
-
-    # 2. Charger les caractéristiques catégorielles (si vous les avez stockées dans une table séparée)
-    with engine.connect() as connection:
-        query = text("SELECT * FROM categorical_features")
-        encoded_categorical_features = pd.read_sql(query, connection)
-
-    # Convertir en Polars
-    encoded_categorical_features = pl.from_pandas(encoded_categorical_features)
-
-    # 3. Charger et fusionner les caractéristiques du cluster avec les caractéristiques catégorielles
-    with engine.connect() as connection:
-        query = text("SELECT * FROM product_data WHERE cluster_text = :cluster_text")
-        similar_cluster_products_df = pd.read_sql(
-            query, connection, params={"cluster_text": product_cluster}
-        )
-
-    # Convertir en Polars
-    similar_cluster_products = pl.from_pandas(similar_cluster_products_df)
-
-    # 4. Filtrer les produits contenant l'allergène, si nécessaire
-    if allergen:
-        similar_cluster_products = similar_cluster_products.filter(
-            ~pl.col("allergens").str.to_lowercase().str.contains(allergen.lower())
-            & ~pl.col("traces_tags").str.to_lowercase().str.contains(allergen.lower())
-        )
-
-    # 5. Sélectionner uniquement les colonnes numériques pour le calcul de la similarité
-    similar_cluster_numeric_features = similar_cluster_products.select(
-        NUMERIC_COLUMNS
-    ).to_numpy()
-
-    # 6. Calculer la similarité cosinus
-    similarities = cosine_similarity(
-        [target_features], similar_cluster_numeric_features
-    ).flatten()
-
-    # 7. Ajouter les scores de similarité aux produits filtrés
-    similar_cluster_products = similar_cluster_products.with_columns(
-        pl.Series("similarity_text", similarities)
-    )
-
-    # 8. Trier et retourner les produits les plus similaires
-    response = (
-        similar_cluster_products.sort(by="similarity_text", descending=True)
-        .select(
-            [
-                "code",
-                "url",
-                "product_name",
-                "cluster_text",
-                "allergens",
-                "traces_tags",
-                "image_url",
-                "nutriscore_grade",
-                "ecoscore_grade",
-                "similarity_text",
-            ]
-        )
-        .head(top_n)
     )
 
     return response.to_pandas().T.to_json()

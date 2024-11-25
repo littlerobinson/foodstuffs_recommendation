@@ -29,8 +29,8 @@ async def find_similar_products_text(data: TargetProductModel):
     allergen = data.allergen
 
     # response = await handler.sql_find_similar_products_text(code, allergen, top_n)
-    # response = await handler.lazy_find_similar_products_text(code, allergen, top_n)
-    response = await handler.find_similar_products_text(code, allergen, top_n)
+    response = await handler.lazy_find_similar_products_text(code, allergen, top_n)
+    # response = await handler.find_similar_products_text(code, allergen, top_n)
     return Response(content=response, media_type="application/json")
 
 

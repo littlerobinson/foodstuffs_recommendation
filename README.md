@@ -92,31 +92,32 @@ project-root/
 
 To automate common tasks, you can use the Makefile. Below is the list of commands in the correct execution order and with comments on their purpose:
 
-   - `make docker_up`: Builds and starts the Docker containers for the API, dashboard, and MLflow.
-   - `make docker_down`: Stops and removes the running Docker containers.
-   - `make docker_logs`: Displays live logs from the running Docker containers for debugging.
-   - `make export_secrets`: Exports secrets from the `secrets.sh` file by making it executable.
-   
-   *Run the Docker CLI for Python 3.8*
+- `make docker_up`: Builds and starts the Docker containers for the API, dashboard, and MLflow.
+- `make docker_down`: Stops and removes the running Docker containers.
+- `make docker_logs`: Displays live logs from the running Docker containers for debugging.
+- `make export_secrets`: Exports secrets from the `secrets.sh` file by making it executable.
 
-   - `make run_docker_cli`: Opens an interactive terminal session within the Python 3.12 Docker container.
-   - `make install_deps`: Installs all project dependencies and downloads SpaCy's `en_core_web_sm` model.
-   - `make load_data`: Processes and loads raw data into the database, as specified in `training/config.yaml`.
-   - `make mlflow`: Starts MLFlow for tracking experiments and model performance.
-   - `make run`: Combines the `load_data` and `mlflow` commands to execute the full training pipeline.
-   - `make download_images`: Downloads images needed for the project based on the configuration file.
+_Run the Docker CLI for Python 3.8_
 
-   *Run the Docker CLI for Python 3.8*
-   - `make run_python_cli_3_8`: Opens an interactive terminal session within the Python 3.8 Docker container.
-   - `make run_add_embeddings`: Generates embeddings from image files and adds them to the dataset. (Requires Python 3.8)
+- `make run_docker_cli`: Opens an interactive terminal session within the Python 3.12 Docker container.
+- `make install_deps`: Installs all project dependencies and downloads SpaCy's `en_core_web_sm` model.
+- `make load_data`: Processes and loads raw data into the database, as specified in `training/config.yaml`.
+- `make mlflow`: Starts MLFlow for tracking experiments and model performance.
+- `make run`: Combines the `load_data` and `mlflow` commands to execute the full training pipeline.
+- `make download_images`: Downloads images needed for the project based on the configuration file.
 
-   *On the Docker CLI for Python 3.12*
-   - `make run_image_clustering`: Clusters images using embeddings, as specified in the configuration file.
+_Run the Docker CLI for Python 3.8_
 
-   - `make clean`: Removes temporary files, caches, and Python bytecode.
+- `make run_python_cli_3_8`: Opens an interactive terminal session within the Python 3.8 Docker container.
+- `make run_add_embeddings`: Generates embeddings from image files and adds them to the dataset. (Requires Python 3.8)
 
-   - `make run_tests`: Executes all unit and integration tests for both the API and training modules.
+_On the Docker CLI for Python 3.12_
 
+- `make run_image_clustering`: Clusters images using embeddings, as specified in the configuration file.
+
+- `make clean`: Removes temporary files, caches, and Python bytecode.
+
+- `make run_tests`: Executes all unit and integration tests for both the API and training modules.
 
 ### Example
 
@@ -139,6 +140,12 @@ Enjoy discovering new products and exploring healthier, allergen-free, or eco-fr
 ## 🚀 Deployment exemple on Heroku
 
 ```bash
+# Create Heroku project
+heroku create --region eu <container-name>
+
+# Set as docker app
+heroku stack:set container -a <container-name>
+
 # Build the project images
 docker compose build
 

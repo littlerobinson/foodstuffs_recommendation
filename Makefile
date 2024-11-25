@@ -70,6 +70,10 @@ run_add_embeddings:
 
 # Come bach on the terminal with python cli 3.12 
 
+# Create teh API database
+create_api_database:
+	@echo "Create the API database script..."
+	poetry run python scripts/create_api_database.py --config $(ML_CONFIG_PATH)
 
 # Run clustering on image
 run_image_clustering:
