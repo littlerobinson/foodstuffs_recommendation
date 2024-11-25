@@ -1,8 +1,8 @@
 import sys
 import os
 
+#todo Uptimise
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 
 from training.utils.config import load_config
 from training.utils.logger import setup_logger
