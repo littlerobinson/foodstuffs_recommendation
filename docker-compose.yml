@@ -52,6 +52,7 @@ services:
       - foodstuffsrecommendationnetwork
 
   python-cli:
+    container_name: python-cli
     build:
       context: .
       dockerfile: ./docker/Dockerfile
@@ -62,6 +63,7 @@ services:
     tty: true
 
   python-cli-3.8:
+    container_name: python-cli-3.8
     build:
       context: .
       dockerfile: ./docker/Dockerfile

@@ -81,7 +81,7 @@ COLUMNS_TO_KEEP = [
 
 def load_database():
     lazy_df = pl.scan_csv(
-        "./data/production/database.csv",
+        "./data/production/database_text_api.csv",
         # columns=COLUMNS_TO_KEEP,
         schema_overrides=DTYPES,
     )
