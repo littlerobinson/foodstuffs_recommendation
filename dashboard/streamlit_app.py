@@ -228,7 +228,7 @@ if __name__ == "__main__":
     # Dictionnaire des allergènes les plus courants
 
     allergens = {
-        None: "Aucun",
+        "None": "Aucun",
         "en:milk": "Lait",
         "en:peanuts": "Arachides",
         "en:gluten": "Gluten",
