@@ -185,7 +185,7 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
     # Load the dataset lazily
     df = pl.scan_csv("./data/production/database_text_api.csv", schema_overrides=DTYPES)
 
-    # 1. Identify the cluster of the reference product
+    # Identify the cluster of the reference product
     product_cluster = (
         df.filter(pl.col("code") == str(code))
         .select("cluster_text")
@@ -201,34 +201,43 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
 
     cluster_features_combined = df
 
-    # 3. Filter products within the same cluster
+    # Filter products within the same cluster
     similar_cluster_products = cluster_features_combined.filter(
         pl.col("cluster_text") == product_cluster
     )
 
-    # 4. Filter out products containing the specified allergen, if necessary
+    # Filter out products containing the specified allergen, if necessary
     if allergen:
         similar_cluster_products = similar_cluster_products.filter(
             ~pl.col("allergens").str.to_lowercase().str.contains(allergen.lower())
             & ~pl.col("traces_tags").str.to_lowercase().str.contains(allergen.lower())
         )
 
-    # 5. Select only numeric columns for similarity calculation
+    # Select only numeric columns for similarity calculation
     similar_cluster_numeric_features = (
         similar_cluster_products.select(NUMERIC_COLUMNS).collect().to_numpy()
     )
 
-    # 6. Compute cosine similarity
+    # Compute cosine similarity
     similarities = cosine_similarity(
         [target_features], similar_cluster_numeric_features
     ).flatten()
 
-    # 7. Add similarity scores to the filtered products
+    # Add similarity scores to the filtered products
     similar_cluster_products = similar_cluster_products.with_columns(
         pl.Series("similarity_text", similarities)
     )
 
-    # 8. Sort and return the most similar products
+    # Remove target if is in the results
+    if (
+        similar_cluster_products.filter(pl.col("code") == str(code)).collect().height
+        > 0
+    ):
+        similar_cluster_products = similar_cluster_products.filter(
+            pl.col("code") != str(code)
+        )
+
+    # Sort and return the most similar products
     response = (
         similar_cluster_products.sort(by="similarity_text", descending=True)
         .select(
