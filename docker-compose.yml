@@ -22,7 +22,7 @@ services:
     container_name: foodstuffs-recommendation-dash
     environment:
       - PORT=8882
-      - API_URL=http://foodstuffs-recommendation-api:8881/product/find_similar_products_text
+      - API_URL=http://foodstuffs-recommendation-api:8881
     image: foodstuffs-recommendation-dash
     build:
       context: .

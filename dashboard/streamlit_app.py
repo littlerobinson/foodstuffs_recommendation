@@ -103,8 +103,7 @@ def search(search_term):
 
 def get_similar_products(product_code, allergen=None, top_n=10):
     body = {"code": product_code, "top_n": top_n, "allergen": allergen}
-    st.markdown(API_URL)
-    response = requests.post(API_URL, json=body)
+    response = requests.post(f"{API_URL}/product/find_similar_products_text", json=body)
     if response.status_code == 200:
         return response.json()
     else:
