@@ -8,7 +8,7 @@ from sklearn.metrics import (
 )
 
 
-def perform_clustering(df_path, embedding_prefix, n_clusters):
+def perform_clustering(df_path, embedding_prefix, n_clusters, save_dir_path):
     """
     Applies the KMeans clustering algorithm on exploded embedding columns in a DataFrame.
 
@@ -24,8 +24,19 @@ def perform_clustering(df_path, embedding_prefix, n_clusters):
     # Load the DataFrame
     df = pd.read_csv(df_path)
 
+    COLUMN_TO_KEEPS = [
+        "code",
+        "url",
+        "product_name",
+        "image_url",
+        "nutriscore_grade",
+        "ecoscore_grade",
+    ]
+
     # Filter columns corresponding to the embedding dimensions
     embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
+
+    COLUMN_TO_KEEPS.extend(embedding_columns)
 
     if not embedding_columns:
         raise ValueError(f"No columns found with the prefix '{embedding_prefix}'.")
@@ -70,6 +81,8 @@ def perform_clustering(df_path, embedding_prefix, n_clusters):
     if "cluster_emb" in df.columns:
         df = df.drop(columns=["cluster_emb"])
 
+    COLUMN_TO_KEEPS.extend(['cluster_emb'])
+
     # Merge results with the original DataFrame
     df = df.merge(
         valid_embeddings_df[["cluster_emb"]],
@@ -77,6 +90,6 @@ def perform_clustering(df_path, embedding_prefix, n_clusters):
         right_index=True,
         how="left",
     )
-    df.to_csv(df_path, index=False)
+    df[COLUMN_TO_KEEPS].to_csv(save_dir_path, index=False)
 
     return kmeans, metrics, cluster_labels
