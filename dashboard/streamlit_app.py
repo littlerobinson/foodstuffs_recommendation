@@ -93,7 +93,7 @@ def search(search_term):
     return (
         lazy_df.filter(
             pl.col("code").str.contains(search_term)
-            | pl.col("product_name").str.contains(search_term)
+            | pl.col("product_name").str.to_lowercase().str.contains(search_term.lower())
         )
         .head(MAX_RESULTS)
         .collect()
@@ -101,9 +101,18 @@ def search(search_term):
     )
 
 
-def get_similar_products(product_code, allergen=None, top_n=10):
+def get_similar_products_text(product_code, allergen=None, top_n=10):
     body = {"code": product_code, "top_n": top_n, "allergen": allergen}
     response = requests.post(f"{API_URL}/product/find_similar_products_text", json=body)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise APIError(response.status_code, f"API Error: {response.status_code}")
+
+
+def get_similar_products_image(product_code, top_n=10):
+    body = {"code": product_code, "top_n": top_n}
+    response = requests.post(f"{API_URL}/product/find_similar_products_image", json=body)
     if response.status_code == 200:
         return response.json()
     else:
@@ -246,63 +255,106 @@ if __name__ == "__main__":
 
     st.markdown("---")
 
-    # Formulaire pour entrer le code produit et l'allergie
-    st.subheader("Recherchez des alternatives à un produit.")
-    product_code = st.text_input("Code du produit:")
+    # Créer des onglets pour faire la recherche par texte et par image
+    text, image = st.tabs(['Text', 'Image'])
 
-    # Dictionnaire des allergènes les plus courants
+    with text:
 
-    allergens = {
-        "None": "Aucun",
-        "en:milk": "Lait",
-        "en:peanuts": "Arachides",
-        "en:gluten": "Gluten",
-        "en:eggs": "Œufs",
-        "en:soybeans": "Soja",
-        "en:nuts": "Fruits à coque",
-        "en:fish": "Poisson",
-        "en:sulphur-dioxide-and-sulphites": "Sulfites",
-        "en:celery": "Céleri",
-        "en:sesame-seeds": "Sésame",
-        "en:crustaceans": "Crustacés",
-        "en:molluscs": "Mollusques",
-        "en:lupin": "Lupin",
-    }
+        # Formulaire pour entrer le code produit et l'allergie
+        st.subheader("Recherchez des alternatives à un produit basé sur caractérisques textuelles.")
+        product_code = st.text_input("Code du produit:")
 
-    # Liste déroulante pour sélectionner un allergène
-    allergy_key = st.selectbox(
-        "Sélectionnez un allergène à banir (optionnel):",
-        options=list(allergens.keys()),
-        format_func=lambda x: allergens[x],
-    )
+        # Dictionnaire des allergènes les plus courants
 
-    # Bouton pour soumettre le formulaire
-    if st.button("Rechercher 🔍"):
-        if product_code:
-            allergy_value = allergens[allergy_key]
-            with st.spinner("Recherche de produits similaires..."):
-                similar_products = get_similar_products(product_code, allergy_key)
-                if similar_products:
-                    st.success("Produits similaires trouvés:")
-                    st.markdown('<div class="product-grid">', unsafe_allow_html=True)
+        allergens = {
+            "None": "Aucun",
+            "en:milk": "Lait",
+            "en:peanuts": "Arachides",
+            "en:gluten": "Gluten",
+            "en:eggs": "Œufs",
+            "en:soybeans": "Soja",
+            "en:nuts": "Fruits à coque",
+            "en:fish": "Poisson",
+            "en:sulphur-dioxide-and-sulphites": "Sulfites",
+            "en:celery": "Céleri",
+            "en:sesame-seeds": "Sésame",
+            "en:crustaceans": "Crustacés",
+            "en:molluscs": "Mollusques",
+            "en:lupin": "Lupin",
+        }
 
-                    # Affichage des produits sous forme de cartes
-                    for key, product in similar_products.items():
+        # Liste déroulante pour sélectionner un allergène
+        allergy_key = st.selectbox(
+            "Sélectionnez un allergène à banir (optionnel):",
+            options=list(allergens.keys()),
+            format_func=lambda x: allergens[x],
+        )
+
+        # Bouton pour soumettre le formulaire
+        if st.button("Rechercher 🔍"):
+            if product_code:
+                allergy_value = allergens[allergy_key]
+                with st.spinner("Recherche de produits similaires..."):
+                    similar_products = get_similar_products_text(product_code, allergy_key)
+                    if similar_products:
+                        st.success("Produits similaires trouvés:")
+                        st.markdown('<div class="product-grid">', unsafe_allow_html=True)
+
+                        # Affichage des produits sous forme de cartes
+                        for key, product in similar_products.items():
+                            st.markdown(
+                                f"""
+                                <div class="product-card">
+                                    <img src="{product['image_url']}" alt="{product['product_name']}">
+                                    <a href="{product['url']}" target="_blank">{product['product_name']}</a>
+                                    <p>Nutriscore: {product['nutriscore_grade']}</p>
+                                    <p>Allergènes: {product['allergens']}</p>
+                                    <p>Code: {product['code']}</p>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+
+                        st.markdown("</div>", unsafe_allow_html=True)
+                    else:
+                        st.error("Aucun produit similaire trouvé ou erreur API.")
+            else:
+                st.error("Veuillez entrer à la fois le code produit et l'allergie.")
+
+    with image:
+        # Formulaire pour entrer le code produit et l'allergie
+        st.subheader(
+            "Recherchez des alternatives à un produit basé sur caractérisques visuelles."
+        )
+        product_code = st.text_input("Code du produit:", key="product_code_image")
+
+        if st.button("Rechercher 🔍", key="image_recherche"):
+            if product_code:
+                with st.spinner("Recherche de produits similaires..."):
+                    similar_products = get_similar_products_image(
+                        int(product_code)
+                    )
+                    if similar_products:
+                        st.success("Produits similaires trouvés:")
                         st.markdown(
-                            f"""
-                            <div class="product-card">
-                                <img src="{product['image_url']}" alt="{product['product_name']}">
-                                <a href="{product['url']}" target="_blank">{product['product_name']}</a>
-                                <p>Nutriscore: {product['nutriscore_grade']}</p>
-                                <p>Allergènes: {product['allergens']}</p>
-                                <p>Code: {product['code']}</p>
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
+                            '<div class="product-grid">', unsafe_allow_html=True
                         )
 
-                    st.markdown("</div>", unsafe_allow_html=True)
-                else:
-                    st.error("Aucun produit similaire trouvé ou erreur API.")
-        else:
-            st.error("Veuillez entrer à la fois le code produit et l'allergie.")
+                        # Affichage des produits sous forme de cartes
+                        for key, product in similar_products.items():
+                            st.markdown(
+                                f"""
+                                <div class="product-card">
+                                    <img src="{product['image_url']}" alt="{product['product_name']}">
+                                    <a href="{product['url']}" target="_blank">{product['product_name']}</a>
+                                    <p>Code: {product['code']}</p>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+
+                        st.markdown("</div>", unsafe_allow_html=True)
+                    else:
+                        st.error("Aucun produit similaire trouvé ou erreur API.")
+            else:
+                st.error("Veuillez entrer le code produit.")

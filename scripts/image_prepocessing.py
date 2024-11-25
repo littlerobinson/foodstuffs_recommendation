@@ -1,7 +1,7 @@
 import sys
 import os
 
-#todo Uptimise
+# todo Uptimise
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from training.utils.config import load_config
@@ -69,7 +69,13 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     embeddings = []
     embeddings_array = []
     img_download = 25000
-
+    
+    # Check if embedding is already loaded
+    embedding_columns = [col for col in df.columns if col.startswith("embedding_")]
+    if embedding_columns:
+        logger.info("Embeddings have been already loaded.")
+        return df
+    
     for index, row in df.iterrows():
         code = row[code_column]
         image_path = os.path.join(save_dir, f"{code}.jpg")
@@ -102,7 +108,7 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     # Get the length of valid embeddings
     if valid_embeddings.any():
         len_valid_embeddings = len(df.loc[valid_embeddings, "embedding_array"].iloc[0])
-        print(len_valid_embeddings)
+        # print(len_valid_embeddings)
     else:
         raise ValueError("Aucun embedding valide trouvé dans la colonne 'embedding_array'.")
 
@@ -117,13 +123,13 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     # Concatenate the new columns with the original DataFrame
     df = pd.concat([df.drop(columns=["embedding_array"]), embedding_columns], axis=1)
 
-    df.to_csv("data/clean_dataset_with_embeddings.csv", index=False)
+    df.to_csv(df_path, index=False)
 
 def main(config_path: str):
     # Load configuration from file
     config = load_config(config_path)
 
-    df_path = config["data"]["clean_data_path"]
+    df_path = config["data"]["production_data_path"]
     code_column = config["data"]["code_column"]
     save_dir = config["data"]["images_path"]
 

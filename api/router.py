@@ -11,15 +11,15 @@ router = APIRouter(
 )
 
 
-@router.get("/test")
-async def test():
-    """
-    test route
-    """
-    return {"message": "Test API route work 🎉"}
+# @router.get("/test")
+# async def test():
+#     """
+#     test route
+#     """
+#     return {"message": "Test API route work 🎉"}
 
 
-@router.post("/find_similar_products_text")
+@router.post("/find_similar_products_text", tags=["machine-learning"])
 async def find_similar_products_text(data: TargetProductModel):
     """
     Search for similar products in the same cluster, avoiding those containing a specific allergen.
@@ -34,7 +34,7 @@ async def find_similar_products_text(data: TargetProductModel):
     return Response(content=response, media_type="application/json")
 
 
-@router.post("/find_similar_products_image")
+@router.post("/find_similar_products_image", tags=["machine-learning"])
 async def find_similar_products_image(data: TargetProductModelImage):
     """
     Search for similar products in the same cluster base on image

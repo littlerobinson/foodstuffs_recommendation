@@ -54,9 +54,9 @@ def main(config_path: str):
     # Load configuration from file
     config = load_config(config_path)
 
-    df_path = config["data"]["clean_data_with_embed"]
+    df_path = config["data"]["production_data_path"]
     embedding_prefix = config["data"]["embedding_prefix"]
-    save_df_path = config["data"]["data_with_clusters"]
+    # save_df_path = config["data"]["data_with_clusters"]
     n_clusters = config["image_training"]["n_clusters"]
     mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
     mlflow_tracking_uri = config["training"]["mlflow_tracking_uri"]
@@ -69,7 +69,7 @@ def main(config_path: str):
     experiment = mlflow.get_experiment_by_name(mlflow_experiment_name)
     with mlflow.start_run(experiment_id=experiment.experiment_id) as run:
         model, metrics, labels = perform_clustering(
-            df_path, embedding_prefix, n_clusters, save_df_path
+            df_path, embedding_prefix, n_clusters
         )
         for metric in metrics:
             mlflow.log_metric(metric, metrics[metric])

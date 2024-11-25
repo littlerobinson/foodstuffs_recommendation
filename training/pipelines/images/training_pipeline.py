@@ -8,7 +8,7 @@ from sklearn.metrics import (
 )
 
 
-def perform_clustering(df_path, embedding_prefix, n_clusters, save_df_path):
+def perform_clustering(df_path, embedding_prefix, n_clusters):
     """
     Applies the KMeans clustering algorithm on exploded embedding columns in a DataFrame.
 
@@ -77,6 +77,6 @@ def perform_clustering(df_path, embedding_prefix, n_clusters, save_df_path):
         right_index=True,
         how="left",
     )
-    df.to_csv(save_df_path, index=False)
+    df.to_csv(df_path, index=False)
 
     return kmeans, metrics, cluster_labels
