@@ -80,5 +80,6 @@ RUN apt-get update & apt-get clean
 
 COPY ./api /app
 COPY ./data/production /app/data/production
+COPY ./db /app/db
 
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 90
