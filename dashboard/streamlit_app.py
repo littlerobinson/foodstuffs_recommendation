@@ -85,6 +85,9 @@ def load_database():
 
 def get_similar_products(product_code, allergen=None, top_n=10):
     body = {"code": product_code, "top_n": top_n, "allergen": allergen}
+    print("body ----------------------------------------------------------")
+    print(body)
+    st.markdown(body)
     response = requests.post(API_URL, json=body)
     print(response)
     if response.status_code == 200:
@@ -253,7 +256,7 @@ if __name__ == "__main__":
         if product_code:
             allergy_value = allergens[allergy_key]
             with st.spinner("Recherche de produits similaires..."):
-                similar_products = get_similar_products(product_code, allergy_value)
+                similar_products = get_similar_products(product_code, allergy_key)
                 if similar_products:
                     st.success("Produits similaires trouvés:")
                     st.markdown('<div class="product-grid">', unsafe_allow_html=True)

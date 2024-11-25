@@ -4,6 +4,7 @@
 *.sh
 *.xz
 *.pkl
+*.db
 data/product_images
 mlruns
 *.db
