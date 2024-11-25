@@ -7,6 +7,7 @@ data:
   production_data_path: "data/production/database.csv"
   production_categorical_features_data_path: "data/production/categorical_features.csv"
   production_encoded_features_path: "data/production/production_encoded_features.csv"
+  save_production_image_path: "data/production/database_image_api.csv"
   production_text_data_api_path: "data/production/database_text_api.csv"
   images_path: "data/product_images"
   image_url_column: "image_url"

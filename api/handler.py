@@ -282,9 +282,7 @@ def find_similar_products_img(
     cluster_column = "cluster_emb"
 
     # Load the DataFrame
-    df = pd.read_csv("./data/clean_dataset_clusters.csv")
-
-    print(df[[product_code_column]].dtypes)
+    df = pl.scan_csv("./data/production/database_image_api.csv")
 
     # Check that the required columns exist
     embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
@@ -294,40 +292,53 @@ def find_similar_products_img(
         )
 
     # Find the entry for the given product
-    target_row = df[df[product_code_column] == product_code]
-    if target_row.empty:
+    target_row = df.filter(pl.col(product_code_column) == product_code).collect()
+    if target_row.is_empty():
         raise ValueError(
             f"The product with the code '{product_code}' does not exist in the DataFrame."
         )
 
     # Get the embedding and cluster of the target product
-    target_embedding = target_row[embedding_columns].values
+    target_embedding = target_row.select(embedding_columns).to_numpy()
     if target_embedding.shape[0] == 0 or np.isnan(target_embedding).any():
         raise ValueError(
             f"The embedding for the product with the code '{product_code}' is empty or invalid."
         )
-    target_cluster = target_row.iloc[0][cluster_column]
+    target_cluster = target_row.select(pl.col(cluster_column)).to_series().to_list()[0]
 
     # Filter products belonging to the same cluster
-    cluster_products = df[df[cluster_column] == target_cluster]
+    cluster_products = df.filter(pl.col(cluster_column) == target_cluster).collect()
 
     # Remove the target product row from the cluster to avoid self-comparison
-    cluster_products = cluster_products[
-        cluster_products[product_code_column] != product_code
-    ]
+    cluster_products = cluster_products.filter(
+        pl.col(product_code_column) != product_code
+    )
 
     # Compute cosine similarities with products in the cluster
-    cluster_embeddings = cluster_products[embedding_columns].values
+    cluster_embeddings = cluster_products.select(embedding_columns).to_numpy()
     similarities = cosine_similarity(target_embedding, cluster_embeddings).flatten()
 
     # Add the 'similarity_img' column to the DataFrame of products in the same cluster
-    cluster_products = cluster_products.copy()
-    cluster_products["similarity_img"] = similarities
+    cluster_products = cluster_products.with_columns(
+        pl.Series("similarity_img", similarities)
+    )
 
     # Sort by similarity and keep the top_n products
-    cluster_products = cluster_products.sort_values(
-        by="similarity_img", ascending=False
-    )
-    response = cluster_products.drop(columns=embedding_columns).head(top_n)
+    cluster_products = (
+        cluster_products.sort("similarity_img", descending=True)
+        .head(top_n)
+        .select(
+            [
+                "code",
+                "url",
+                "product_name",
+                "image_url",
+                "nutriscore_grade",
+                "ecoscore_grade",
+                "similarity_img",
+            ]
+        )
+    ).head(top_n)
+    response = cluster_products
 
-    return response.T.to_json()
+    return response.to_pandas().T.to_json()
