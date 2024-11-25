@@ -3,10 +3,7 @@ from fastapi import FastAPI
 import router
 
 tags_metadata = [
-    {
-        "name": "data",
-        "description": "Show data",
-    },
+    {"name": "data","description": "Show data"},
     {"name": "machine-learning", "description": "Prediction Endpoint."},
 ]
 
@@ -23,6 +20,6 @@ app = FastAPI(
 app.include_router(router.router)
 
 
-@app.get("/")
+@app.get("/", tags=["data"])
 async def root():
     return {"message": "Hello foodstuffs recommendation 🎉"}
