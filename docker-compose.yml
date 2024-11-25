@@ -19,10 +19,11 @@ services:
       - foodstuffsrecommendationnetwork
 
   dashboard:
-    container_name: foodstuffs-recommendation-dashboard
+    container_name: foodstuffs-recommendation-dash
     environment:
       - PORT=8882
-    image: foodstuffs-recommendation-dashboard
+      - API_URL=http://foodstuffs-recommendation-api:8881/product/find_similar_products_text
+    image: foodstuffs-recommendation-dash
     build:
       context: .
       dockerfile: ./docker/Dockerfile

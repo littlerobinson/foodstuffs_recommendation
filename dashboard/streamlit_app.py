@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import requests
 import polars as pl
@@ -7,7 +8,7 @@ from classes.api_error import APIError
 #############################################################################
 #   Global variable
 #############################################################################
-API_URL = "http://foodstuffs-recommendation-api:8881/product/find_similar_products_text"
+API_URL = os.environ["API_URL"]
 
 MAX_RESULTS = 20
 
@@ -79,17 +80,31 @@ COLUMNS_TO_KEEP = [
 
 
 def load_database():
-    data = pl.read_csv("./data/production/database.csv", schema_overrides=DTYPES)
-    return data[COLUMNS_TO_KEEP]
+    lazy_df = pl.scan_csv(
+        "./data/production/database.csv",
+        # columns=COLUMNS_TO_KEEP,
+        schema_overrides=DTYPES,
+    )
+    return lazy_df
+
+
+def search(search_term):
+    lazy_df = load_database()
+    return (
+        lazy_df.filter(
+            pl.col("code").str.contains(search_term)
+            | pl.col("product_name").str.contains(search_term)
+        )
+        .head(MAX_RESULTS)
+        .collect()
+        .to_pandas()
+    )
 
 
 def get_similar_products(product_code, allergen=None, top_n=10):
     body = {"code": product_code, "top_n": top_n, "allergen": allergen}
-    print("body ----------------------------------------------------------")
-    print(body)
-    st.markdown(body)
+    st.markdown(API_URL)
     response = requests.post(API_URL, json=body)
-    print(response)
     if response.status_code == 200:
         return response.json()
     else:
@@ -116,6 +131,21 @@ if __name__ == "__main__":
     st.markdown(
         """
     <style>
+    .button-search {
+        display: inline-block;
+        color: white;
+        background-color: #007BFF;
+        border: none;
+        padding: 8px 16px;
+        text-align: center;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+    .button-search:hover {
+        background-color: #0056b3;
+    }
     .product-grid {
         display: flex;
         flex-wrap: wrap;
@@ -156,9 +186,6 @@ if __name__ == "__main__":
         "Cette application vous aide à trouver des produits alimentaires similaires qui ne contiennent pas d'ingrédients pouvant provoquer des allergies."
     )
 
-    with st.spinner("Chargement des données..."):
-        df = load_database()
-
     # Titre de l'application
     st.title("Recherche de Produits Alimentaires 🍲")
 
@@ -169,55 +196,54 @@ if __name__ == "__main__":
         "🚨 **Attention**: Veuillez vérifier attentivement le contenu des ingrédients et les traces d'allergènes avant de consommer les produits recommandés. 🚨"
     )
 
+    filtered_df = pl.DataFrame(data=[]).to_pandas()  # Init empty dataframe
+
     # Champs de recherche
     search_term = st.text_input(
-        "Recherchez un produit ou un code dans la base de données."
+        "Recherchez un produit ou un code dans la base de données.",
+        label_visibility="collapsed",
     )
 
     # Filtrer le DataFrame en fonction du terme de recherche
-    if search_term:
-        filtered_df = (
-            df.filter(
-                pl.col("code").str.contains(search_term)
-                | pl.col("product_name").str.contains(search_term)
+    if st.button("Rechercher"):
+        if len(search_term) < 3:
+            st.warning(
+                "Veuillez entrer au moins 3 caractères pour effectuer une recherche."
             )
-            .head(MAX_RESULTS)
-            .to_pandas()
-        )
-
-        # Afficher le DataFrame filtré
-        # st.dataframe(filtered_df)
-
-        cols_per_row = 4
-
-        if not filtered_df.empty:
-            # Créer des lignes de produits
-            rows = [
-                filtered_df.iloc[i : i + cols_per_row]
-                for i in range(0, len(filtered_df), cols_per_row)
-            ]
-
-            st.markdown('<div class="product-grid">', unsafe_allow_html=True)
-
-            # Afficher chaque ligne
-            for row in rows:
-                cols = st.columns(cols_per_row)
-                for col, (_, product) in zip(cols, row.iterrows()):
-                    with col:
-                        st.markdown(
-                            f"""
-                            <div class="product-card">
-                                <img src="{product['image_url']}" alt="{product['product_name']}">
-                                <a href="{product['url']}" target="_blank">{product['product_name']}</a>
-                                <p>Code: {product['code']}</p>
-                                <p>Nutriscore: {product['nutriscore_grade']}</p>
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
-            st.markdown("</div>", unsafe_allow_html=True)
         else:
-            st.write("Aucun produit correspondant trouvé.")
+            with st.spinner("Recherche en cours..."):
+                filtered_df = search(search_term)
+
+    cols_per_row = 4
+
+    if not filtered_df.empty:
+        # Créer des lignes de produits
+        rows = [
+            filtered_df.iloc[i : i + cols_per_row]
+            for i in range(0, len(filtered_df), cols_per_row)
+        ]
+
+        st.markdown('<div class="product-grid">', unsafe_allow_html=True)
+
+        # Afficher chaque ligne
+        for row in rows:
+            cols = st.columns(cols_per_row)
+            for col, (_, product) in zip(cols, row.iterrows()):
+                with col:
+                    st.markdown(
+                        f"""
+                        <div class="product-card">
+                            <img src="{product['image_url']}" alt="{product['product_name']}">
+                            <a href="{product['url']}" target="_blank">{product['product_name']}</a>
+                            <p>Code: {product['code']}</p>
+                            <p>Nutriscore: {product['nutriscore_grade']}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.write("Aucun produit correspondant trouvé.")
 
     st.markdown("---")
 

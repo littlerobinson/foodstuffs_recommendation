@@ -60,6 +60,7 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 RUN apt-get update && apt-get install -y curl & apt-get clean
 
 COPY ./dashboard /app
+COPY ./data/production/database.csv /app/data/production/database.csv
 
 CMD streamlit run streamlit_app.py --server.port $PORT --server.address=0.0.0.0
 

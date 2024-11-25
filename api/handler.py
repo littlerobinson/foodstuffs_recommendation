@@ -187,7 +187,8 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
         DataFrame: Similar products sorted by cosine similarity.
     """
     # Load the dataset lazily
-    df = pl.scan_csv("./data/production/database.csv", schema_overrides=DTYPES)
+    # df = pl.scan_csv("./data/production/database.csv", schema_overrides=DTYPES)
+    df = pl.scan_csv("./data/production/database_combined.csv", schema_overrides=DTYPES)
 
     # 1. Identify the cluster of the reference product
     product_cluster = (
@@ -203,15 +204,17 @@ async def lazy_find_similar_products_text(code, allergen=None, top_n=10):
         .to_numpy()[0]
     )
 
-    # 2. Load and merge categorical features lazily
-    encoded_categorical_features = pl.scan_csv(
-        "./data/production/categorical_features.csv"
-    )
+    # # 2. Load and merge categorical features lazily
+    # encoded_categorical_features = pl.scan_csv(
+    #     "./data/production/categorical_features.csv"
+    # )
 
-    # Concatenate the DataFrames horizontally
-    cluster_features_combined = pl.concat(
-        [df, encoded_categorical_features], how="horizontal"
-    )
+    # # Concatenate the DataFrames horizontally
+    # cluster_features_combined = pl.concat(
+    #     [df, encoded_categorical_features], how="horizontal"
+    # )
+
+    cluster_features_combined = df
 
     # 3. Filter products within the same cluster
     similar_cluster_products = cluster_features_combined.filter(
