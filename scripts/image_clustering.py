@@ -42,7 +42,9 @@ def get_signature(df_path, embedding_prefix):
     valid_embeddings_df = df[embedding_columns].dropna()
 
     # Build an input example for the signature
-    input_example = valid_embeddings_df.head(1)  # Utiliser une seule ligne pour l'exemple
+    input_example = valid_embeddings_df.head(
+        1
+    )  # Utiliser une seule ligne pour l'exemple
 
     # Infer the signature from the example
     signature = infer_signature(input_example)
@@ -56,7 +58,7 @@ def main(config_path: str):
 
     df_path = config["data"]["production_data_path"]
     embedding_prefix = config["data"]["embedding_prefix"]
-    save_df_path = config["data"]["save_production_image_path"]
+    save_df_path = config["data"]["production_image_data_api_path"]
     n_clusters = config["image_training"]["n_clusters"]
     mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
     mlflow_tracking_uri = config["training"]["mlflow_tracking_uri"]
@@ -87,15 +89,13 @@ def main(config_path: str):
             signature=mlflow_signature,
         )
 
+
 if __name__ == "__main__":
     logger.info("🚀  Clustering starting 🚀")
-    
+
     parser = argparse.ArgumentParser(description="Starting the ML pipeline")
     parser.add_argument(
-        "--config",
-        type=str,
-        required=True,
-        help="Chemin du fichier de configuration"
+        "--config", type=str, required=True, help="Chemin du fichier de configuration"
     )
     args = parser.parse_args()
     main(args.config)

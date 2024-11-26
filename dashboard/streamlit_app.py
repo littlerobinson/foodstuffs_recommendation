@@ -93,7 +93,9 @@ def search(search_term):
     return (
         lazy_df.filter(
             pl.col("code").str.contains(search_term)
-            | pl.col("product_name").str.to_lowercase().str.contains(search_term.lower())
+            | pl.col("product_name")
+            .str.to_lowercase()
+            .str.contains(search_term.lower())
         )
         .head(MAX_RESULTS)
         .collect()
@@ -112,7 +114,9 @@ def get_similar_products_text(product_code, allergen=None, top_n=10):
 
 def get_similar_products_image(product_code, top_n=10):
     body = {"code": product_code, "top_n": top_n}
-    response = requests.post(f"{API_URL}/product/find_similar_products_image", json=body)
+    response = requests.post(
+        f"{API_URL}/product/find_similar_products_image", json=body
+    )
     if response.status_code == 200:
         return response.json()
     else:
@@ -256,12 +260,13 @@ if __name__ == "__main__":
     st.markdown("---")
 
     # Créer des onglets pour faire la recherche par texte et par image
-    text, image = st.tabs(['Text', 'Image'])
+    text, image = st.tabs(["Text", "Image"])
 
     with text:
-
         # Formulaire pour entrer le code produit et l'allergie
-        st.subheader("Recherchez des alternatives à un produit basé sur caractérisques textuelles.")
+        st.subheader(
+            "Recherchez des alternatives à un produit basé sur caractérisques textuelles."
+        )
         product_code = st.text_input("Code du produit:")
 
         # Dictionnaire des allergènes les plus courants
@@ -295,10 +300,14 @@ if __name__ == "__main__":
             if product_code:
                 allergy_value = allergens[allergy_key]
                 with st.spinner("Recherche de produits similaires..."):
-                    similar_products = get_similar_products_text(product_code, allergy_key)
+                    similar_products = get_similar_products_text(
+                        product_code, allergy_key
+                    )
                     if similar_products:
                         st.success("Produits similaires trouvés:")
-                        st.markdown('<div class="product-grid">', unsafe_allow_html=True)
+                        st.markdown(
+                            '<div class="product-grid">', unsafe_allow_html=True
+                        )
 
                         # Affichage des produits sous forme de cartes
                         for key, product in similar_products.items():
@@ -331,9 +340,7 @@ if __name__ == "__main__":
         if st.button("Rechercher 🔍", key="image_recherche"):
             if product_code:
                 with st.spinner("Recherche de produits similaires..."):
-                    similar_products = get_similar_products_image(
-                        int(product_code)
-                    )
+                    similar_products = get_similar_products_image(int(product_code))
                     if similar_products:
                         st.success("Produits similaires trouvés:")
                         st.markdown(

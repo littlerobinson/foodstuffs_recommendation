@@ -119,7 +119,7 @@ if __name__ == "__main__":
     try:
         merged_df = load_and_merge_csv(
             config["data"]["production_data_path"],
-            config["data"]["production_categorical_features_data_path"],
+            config["data"]["training_categorical_features_data_path"],
             output_file=config["data"]["production_text_data_api_path"],
         )
         print(merged_df)
