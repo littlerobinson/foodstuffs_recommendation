@@ -47,6 +47,15 @@ project-root/
 └── README.md               # Project documentation
 ```
 
+---
+
+### ✨ Variables
+
+- **`ML_CONFIG_PATH`**: Path to the YAML configuration file for training (`training/config.yaml`).
+- **`SECRET_FILE`**: Path to the secrets file (`secrets.sh`).
+
+---
+
 ## 🛠️ Setup Instructions
 
 1. **Clone the repository**:
@@ -89,16 +98,15 @@ project-root/
 - **Datasets**: Place any required datasets in the `data` directory.
 - **Exploratory Analysis**: Jupyter notebooks for research are available in the `notebooks` directory.
 
+** 🚨 For run trainings, you need to run your secret file with your credentials. 🚨**
+
+```bash
+source secrets.sh
+```
+
 ## 🧪 Makefile Documentation
 
 This Makefile provides commands to manage the Docker environment, run scripts, load data, and handle project dependencies.
-
----
-
-### Variables
-
-- **`ML_CONFIG_PATH`**: Path to the YAML configuration file for training (`training/config.yaml`).
-- **`SECRET_FILE`**: Path to the secrets file (`secrets.sh`).
 
 ---
 
