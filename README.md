@@ -126,6 +126,8 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
   make docker_logs
   ```
 
+---
+
 ##### Secrets Management
 
 - **`make export_secrets`**  
@@ -134,6 +136,8 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
   ```bash
   make export_secrets
   ```
+
+---
 
 ##### Command Line Access
 
@@ -250,6 +254,8 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
   ```bash
   make help
   ```
+
+---
 
 ##### Example
 
