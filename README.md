@@ -83,14 +83,15 @@ project-root/
 
    This command will build and start the API, dashboard, and MLflow services as defined in the `docker-compose.yml` file.
 
-4. **🌐 Accessing the Services**:
+4. **Accessing the Services**:
 
    - **API**: [http://localhost:8881](http://localhost:8881) 🧑‍🍳
    - **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
    - **MLflow**: [http://localhost:8883](http://localhost:8883) 📈
 
-5. **Online demo**:
-   - [https://food-reco-dashboard.luciole.dev/docs](https://food-reco-dashboard.luciole.dev)
+## 🌐 Online demo
+
+- [https://food-reco-dashboard.luciole.dev/docs](https://food-reco-dashboard.luciole.dev)
 
 ## 🔧 Development and Model Training
 
