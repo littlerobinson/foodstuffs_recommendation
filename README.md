@@ -86,40 +86,172 @@ project-root/
 - **Datasets**: Place any required datasets in the `data` directory.
 - **Exploratory Analysis**: Jupyter notebooks for research are available in the `notebooks` directory.
 
-### Using the Makefile
+### 🧪 Makefile Documentation
 
-### Using the Makefile
+This Makefile provides commands to manage the Docker environment, run scripts, load data, and handle project dependencies.
 
-To automate common tasks, you can use the Makefile. Below is the list of commands in the correct execution order and with comments on their purpose:
+---
 
-- `make docker_up`: Builds and starts the Docker containers for the API, dashboard, and MLflow.
-- `make docker_down`: Stops and removes the running Docker containers.
-- `make docker_logs`: Displays live logs from the running Docker containers for debugging.
-- `make export_secrets`: Exports secrets from the `secrets.sh` file by making it executable.
+#### Variables
 
-_Run the Docker CLI for Python 3.8_
+- **`ML_CONFIG_PATH`**: Path to the YAML configuration file for training (`training/config.yaml`).
+- **`SECRET_FILE`**: Path to the secrets file (`secrets.sh`).
 
-- `make run_docker_cli`: Opens an interactive terminal session within the Python 3.12 Docker container.
-- `make install_deps`: Installs all project dependencies and downloads SpaCy's `en_core_web_sm` model.
-- `make load_data`: Processes and loads raw data into the database, as specified in `training/config.yaml`.
-- `make mlflow`: Starts MLFlow for tracking experiments and model performance.
-- `make run`: Combines the `load_data` and `mlflow` commands to execute the full training pipeline.
-- `make download_images`: Downloads images needed for the project based on the configuration file.
+---
 
-_Run the Docker CLI for Python 3.8_
+#### Commands
 
-- `make run_python_cli_3_8`: Opens an interactive terminal session within the Python 3.8 Docker container.
-- `make run_add_embeddings`: Generates embeddings from image files and adds them to the dataset. (Requires Python 3.8)
+##### Docker Management
 
-_On the Docker CLI for Python 3.12_
+- **`make docker_up`**  
+  Build and start the Docker environment.  
+  **Example:**
 
-- `make run_image_clustering`: Clusters images using embeddings, as specified in the configuration file.
+  ```bash
+  make docker_up
+  ```
 
-- `make clean`: Removes temporary files, caches, and Python bytecode.
+- **`make docker_down`**  
+  Stop all running Docker containers.  
+  **Example:**
 
-- `make run_tests`: Executes all unit and integration tests for both the API and training modules.
+  ```bash
+  make docker_down
+  ```
 
-### Example
+- **`make docker_logs`**  
+  View real-time logs from Docker containers.  
+  **Example:**
+  ```bash
+  make docker_logs
+  ```
+
+##### Secrets Management
+
+- **`make export_secrets`**  
+  Load and export environment secrets from `secrets.sh`.  
+  **Example:**
+  ```bash
+  make export_secrets
+  ```
+
+##### Command Line Access
+
+- **`make run_docker_cli`**  
+  Open a shell in the Docker container for the Python CLI.  
+  **Example:**
+  ```bash
+  make run_docker_cli
+  ```
+
+---
+
+##### Dependency Management
+
+- **`make install_deps`**  
+  Install dependencies using Poetry and download the `en_core_web_sm` spaCy model.  
+  **Example:**
+  ```bash
+  make install_deps
+  ```
+
+---
+
+##### Data Loading and Processing
+
+- **`make load_data`**  
+  Load raw data from the database using the configuration file.  
+  **Example:**
+
+  ```bash
+  make load_data
+  ```
+
+- **`make download_images`**  
+  Download all product images based on the configuration file.  
+  **Example:**
+
+  ```bash
+  make download_images
+  ```
+
+- **`make run_add_embeddings`**  
+  Add embeddings to the dataset using Python 3.8.  
+  **Example:**
+  ```bash
+  make run_add_embeddings
+  ```
+
+---
+
+##### Machine Learning Pipeline and clustering
+
+- **`make train_mlflow`**  
+  Run training with MLFlow monitoring.  
+  **Example:**
+
+  ```bash
+  make train_mlflow
+  ```
+
+- **`make train`**  
+  Execute the main machine learning pipeline, including data loading and MLFlow initialization.  
+  **Example:**
+
+  ```bash
+  make train
+  ```
+
+- **`make image_clustering`**  
+  Perform clustering on images using the specified configuration.  
+  **Example:**
+  ```bash
+  make image_clustering
+  ```
+
+---
+
+##### Database
+
+- **`make create_text_api_database`**  
+  Create the text database for the API.  
+  **Example:**
+
+  ```bash
+  make create_text_api_database
+  ```
+
+---
+
+##### Testing and Cleanup
+
+- **`make run_tests`**  
+  Run all unit and integration tests in the project.  
+  **Example:**
+
+  ```bash
+  make run_tests
+  ```
+
+- **`make clean`**  
+  Remove temporary files and cache directories.  
+  **Example:**
+  ```bash
+  make clean
+  ```
+
+---
+
+##### Help
+
+- **`make help`**  
+  Display a list of available Makefile commands.  
+  **Example:**
+  ```bash
+  make help
+  ```
+
+##### Example
 
 If you want to start the services and train the model in one go, you can use:
 
