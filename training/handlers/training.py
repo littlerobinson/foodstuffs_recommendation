@@ -223,4 +223,4 @@ class Training:
             "n_noise": n_noise,
         }
 
-        return dbscan, metrics, labels
+        return dbscan, features, metrics, labels

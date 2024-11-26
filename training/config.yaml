@@ -1,26 +1,23 @@
 data:
-  raw_data_path: "data/raw/en.openfoodfacts.org.products.csv.gz"
-  processed_data_path: "data/processed/processed_dataset.csv"
-  clean_data_path: "data/processed/clean_dataset.csv"
-  training_categorical_features_data_path: "data/production/categorical_features.csv"
-  production_data_path: "data/production/database.csv"
-  production_encoded_features_path: "data/production/production_encoded_features.csv"
-  production_text_data_api_path: "data/production/database_text_api.csv"
-  production_image_data_api_path: "data/production/database_image_api.csv"
-  images_path: "data/product_images"
-  image_url_column: "image_url"
-  code_column: "code"
-  embedding_prefix: "embedding"
-
-training:
-  mlflow_experiment_name: "foodstuffs-recommendation"
-  mlflow_tracking_uri: "https://mlflow.luciole.dev"
-  mlflow_model_name: "kmeans"
-  encoding_method_name: "svd" # [svd, pca]
-  n_clusters: 525
-
+  clean_data_path: data/processed/clean_dataset.csv
+  code_column: code
+  embedding_prefix: embedding
+  image_url_column: image_url
+  images_path: data/product_images
+  processed_data_path: data/processed/processed_dataset.csv
+  production_data_path: data/production/database.csv
+  production_encoded_features_path: data/production/production_encoded_features.csv
+  production_image_data_api_path: data/production/database_image_api.csv
+  production_text_data_api_path: data/production/database_text_api.csv
+  raw_data_path: data/raw/en.openfoodfacts.org.products.csv.gz
+  training_categorical_features_data_path: data/production/categorical_features.csv
 image_training:
   n_clusters: 300
-
 recommandatons:
   top_n: 10
+training:
+  encoding_method_name: svd
+  mlflow_experiment_name: foodstuffs-recommendation
+  mlflow_model_name: kmeans
+  mlflow_tracking_uri: https://mlflow.luciole.dev
+  n_clusters: 200

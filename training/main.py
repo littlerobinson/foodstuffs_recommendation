@@ -1,13 +1,17 @@
 import argparse
-import os
 import sys
-
+import time
 import mlflow
 import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA, TruncatedSVD
+from sklearn.manifold import TSNE
 from handlers import data_loader
 from mlflow.models.signature import ModelSignature
-from mlflow.types import Schema, ColSpec
+from mlflow.types import ColSpec, Schema
 from pipelines import data_pipeline, training_pipeline
 from utils.config import load_config
 from utils.logger import setup_logger
@@ -78,6 +82,121 @@ def get_mlflow_signature():
     return signature
 
 
+def log_cluster_distribution_artifact(labels, n_clusters):
+    """
+    Generate and log the cluster distribution histogram as an artifact in MLflow using Plotly.
+
+    Parameters:
+    labels (array-like): The cluster labels.
+    n_clusters (int): The number of clusters.
+    """
+    fig = px.histogram(
+        x=labels,
+        nbins=n_clusters,
+        title="Cluster Distribution",
+        labels={"x": "Cluster", "y": "Frequency"},
+    )
+    fig.write_html("artifacts/cluster_distribution.html")
+    mlflow.log_artifact("artifacts/cluster_distribution.html")
+    logger.info("Cluster distribution histogram logged as an artifact.")
+
+
+def log_pca_cluster_plot(features, labels, product_names):
+    """
+    Perform PCA on the features and log the 2D cluster plot as an artifact in MLflow using Plotly.
+
+    Parameters:
+    features (DataFrame): The feature data.
+    labels (array-like): The cluster labels.
+    product_names (array-like): The product names.
+    """
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(features)
+    df_pca = pd.DataFrame(data=pca_result, columns=["PC1", "PC2"])
+    df_pca["Cluster"] = labels
+    df_pca["Product Name"] = product_names
+
+    fig = px.scatter(
+        df_pca,
+        x="PC1",
+        y="PC2",
+        color="Cluster",
+        title="PCA of Clusters",
+        labels={"color": "Cluster"},
+        hover_data=["Product Name"],
+    )
+    fig.update_traces(
+        marker=dict(size=5, opacity=0.7)
+    )  # Adjust marker size and opacity for better visibility
+    fig.write_html("artifacts/pca_cluster_plot.html")
+    mlflow.log_artifact("artifacts/pca_cluster_plot.html")
+    logger.info("PCA cluster plot logged as an artifact.")
+
+
+def log_truncatedsvd_cluster_plot(features, labels, product_names):
+    """
+    Perform TruncatedSVD on the features and log the 2D cluster plot as an artifact in MLflow using Plotly.
+
+    Parameters:
+    features (DataFrame): The feature data.
+    labels (array-like): The cluster labels.
+    product_names (array-like): The product names.
+    """
+    svd = TruncatedSVD(n_components=2)
+    svd_result = svd.fit_transform(features)
+    df_svd = pd.DataFrame(data=svd_result, columns=["SVD1", "SVD2"])
+    df_svd["Cluster"] = labels
+    df_svd["Product Name"] = product_names
+
+    fig = px.scatter(
+        df_svd,
+        x="SVD1",
+        y="SVD2",
+        color="Cluster",
+        title="TruncatedSVD of Clusters",
+        labels={"color": "Cluster"},
+        hover_data=["Product Name"],
+    )
+    fig.update_traces(
+        marker=dict(size=5, opacity=0.7)
+    )  # Adjust marker size and opacity for better visibility
+    fig.write_html("artifacts/truncatedsvd_cluster_plot.html")
+    mlflow.log_artifact("artifacts/truncatedsvd_cluster_plot.html")
+    logger.info("TruncatedSVD cluster plot logged as an artifact.")
+
+
+def log_tsne_cluster_plot(features, labels, product_names):
+    """
+    Perform t-SNE on the features and log the 2D cluster plot as an artifact in MLflow using Plotly.
+
+    Parameters:
+    features (DataFrame): The feature data.
+    labels (array-like): The cluster labels.
+    product_names (array-like): The product names.
+    """
+    tsne = TSNE(n_components=2, random_state=42)
+    tsne_result = tsne.fit_transform(features)
+    df_tsne = pd.DataFrame(data=tsne_result, columns=["TSNE1", "TSNE2"])
+    df_tsne["Cluster"] = labels
+    df_tsne["Product Name"] = product_names
+
+    fig = px.scatter(
+        df_tsne,
+        x="TSNE1",
+        y="TSNE2",
+        color="Cluster",
+        title="t-SNE of Clusters",
+        labels={"color": "Cluster"},
+        hover_data=["Product Name"],
+    )
+    fig.update_traces(
+        marker=dict(size=5, opacity=0.7)
+    )  # Adjust marker size and opacity for better visibility
+    fig.write_html("artifacts/tsne_cluster_plot.html")
+    mlflow.log_artifact("artifacts/tsne_cluster_plot.html")
+    logger.info("t-SNE cluster plot logged as an artifact.")
+
+
 def main(config_path: str):
     # load config variables
     config = load_config(config_path)
@@ -103,7 +222,8 @@ def main(config_path: str):
                 f"Data loaded and preprocessed successfully: {len(processed_data)} rows available."
             )
     else:
-        processed_data = data_loader.load_dataset(processed_data_path, nrows=1000)
+        # processed_data = data_loader.load_dataset(processed_data_path, nrows=10000)
+        processed_data = data_loader.load_dataset(processed_data_path)
 
     # Launch mlflow pipeline
     if args.mlflow:
@@ -114,11 +234,14 @@ def main(config_path: str):
         mlflow.autolog(log_models=False)
         experiment = mlflow.get_experiment_by_name(mlflow_experiment_name)
         with mlflow.start_run(experiment_id=experiment.experiment_id) as run:
+            start_time = time.time()
             model, features, metrics, labels = training_pipeline.build_pipeline(
                 data=processed_data,
                 n_clusters=n_clusters,
                 encoding_method_name=encoding_method_name,
             )
+            training_time = time.time() - start_time
+            mlflow.log_metric("training_time", training_time)
             if labels is not None and len(labels) > 0:
                 mlflow.log_param("labels", str(labels[:10]))
                 logger.info("Save labels to data.")
@@ -126,6 +249,20 @@ def main(config_path: str):
                 logger.info("Save data as production database.")
                 processed_data.to_csv(production_data_path, index=False)
                 features.to_csv(production_encoded_features_path, index=False)
+
+                # Log the cluster distribution histogram
+                log_cluster_distribution_artifact(labels, n_clusters)
+
+                # Log the PCA cluster plot
+                log_pca_cluster_plot(features, labels, processed_data["product_name"])
+
+                # Log the t-SNE cluster plot
+                log_tsne_cluster_plot(features, labels, processed_data["product_name"])
+
+                # Log the TruncatedSVD cluster plot
+                log_truncatedsvd_cluster_plot(
+                    features, labels, processed_data["product_name"]
+                )
             else:
                 logger.warning(
                     "No labels provided for training, metrics will not be logged."
