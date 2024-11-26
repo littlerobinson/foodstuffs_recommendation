@@ -199,7 +199,7 @@ if __name__ == "__main__":
     )
 
     # Titre de l'application
-    st.title("Recherche de Produits Alimentaires 🍲")
+    st.title("Foodstuffs Recommendation 🍲")
 
     st.markdown("---")
 
@@ -208,6 +208,9 @@ if __name__ == "__main__":
         "🚨 **Attention**: Veuillez vérifier attentivement le contenu des ingrédients et les traces d'allergènes avant de consommer les produits recommandés. 🚨"
     )
 
+    st.subheader(
+        "Recherchez le code d'un produit"
+    )
     filtered_df = pl.DataFrame(data=[]).to_pandas()  # Init empty dataframe
 
     # Champs de recherche
@@ -217,7 +220,7 @@ if __name__ == "__main__":
     )
 
     # Filtrer le DataFrame en fonction du terme de recherche
-    if st.button("Rechercher"):
+    if st.button("Rechercher", key="recherche_produit_code"):
         if len(search_term) < 3:
             st.warning(
                 "Veuillez entrer au moins 3 caractères pour effectuer une recherche."
@@ -226,38 +229,38 @@ if __name__ == "__main__":
             with st.spinner("Recherche en cours..."):
                 filtered_df = search(search_term)
 
-    cols_per_row = 4
+            cols_per_row = 4
 
-    if not filtered_df.empty:
-        # Créer des lignes de produits
-        rows = [
-            filtered_df.iloc[i : i + cols_per_row]
-            for i in range(0, len(filtered_df), cols_per_row)
-        ]
+            if not filtered_df.empty:
+                # Créer des lignes de produits
+                rows = [
+                    filtered_df.iloc[i : i + cols_per_row]
+                    for i in range(0, len(filtered_df), cols_per_row)
+                ]
 
-        st.markdown('<div class="product-grid">', unsafe_allow_html=True)
+                st.markdown('<div class="product-grid">', unsafe_allow_html=True)
 
-        # Afficher chaque ligne
-        for row in rows:
-            cols = st.columns(cols_per_row)
-            for col, (_, product) in zip(cols, row.iterrows()):
-                with col:
-                    st.markdown(
-                        f"""
-                        <div class="product-card">
-                            <img src="{product['image_url']}" alt="{product['product_name']}">
-                            <a href="{product['url']}" target="_blank">{product['product_name']}</a>
-                            <p>Code: {product['code']}</p>
-                            <p>Nutriscore: {product['nutriscore_grade']}</p>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-        st.markdown("</div>", unsafe_allow_html=True)
-    else:
-        st.write("Aucun produit correspondant trouvé.")
+                # Afficher chaque ligne
+                for row in rows:
+                    cols = st.columns(cols_per_row)
+                    for col, (_, product) in zip(cols, row.iterrows()):
+                        with col:
+                            st.markdown(
+                                f"""
+                                <div class="product-card">
+                                    <img src="{product['image_url']}" alt="{product['product_name']}">
+                                    <a href="{product['url']}" target="_blank">{product['product_name']}</a>
+                                    <p>Code: {product['code']}</p>
+                                    <p>Nutriscore: {product['nutriscore_grade']}</p>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+                st.markdown("</div>", unsafe_allow_html=True)
+            else:
+                st.write("Aucun produit correspondant trouvé.")
 
-    st.markdown("---")
+            st.markdown("---")
 
     # Créer des onglets pour faire la recherche par texte et par image
     text, image = st.tabs(["Text", "Image"])
@@ -272,7 +275,7 @@ if __name__ == "__main__":
         # Dictionnaire des allergènes les plus courants
 
         allergens = {
-            "None": "Aucun",
+            # "None": "Aucun",
             "en:milk": "Lait",
             "en:peanuts": "Arachides",
             "en:gluten": "Gluten",
@@ -296,7 +299,7 @@ if __name__ == "__main__":
         )
 
         # Bouton pour soumettre le formulaire
-        if st.button("Rechercher 🔍"):
+        if st.button("Rechercher 🔍", key="recherche_produit_similaire_text"):
             if product_code:
                 allergy_value = allergens[allergy_key]
                 with st.spinner("Recherche de produits similaires..."):

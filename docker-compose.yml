@@ -72,17 +72,6 @@ services:
     stdin_open: true
     tty: true
 
-  python-gpu-cli-3.8:
-    container_name: python-gpu-cli-3.8
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-      target: python-gpu-cli-3.8
-    volumes:
-      - .:/app
-    stdin_open: true
-    tty: true
-
 networks:
   foodstuffsrecommendationnetwork:
     driver: bridge
