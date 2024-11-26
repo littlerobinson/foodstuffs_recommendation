@@ -98,7 +98,7 @@ project-root/
 - **Datasets**: Place any required datasets in the `data` directory.
 - **Exploratory Analysis**: Jupyter notebooks for research are available in the `notebooks` directory.
 
-** 🚨 For run trainings, you need to run your secret file with your credentials. 🚨**
+**🚨 For run trainings, you need to run your secret file with your credentials. 🚨**
 
 ```bash
 source secrets.sh
