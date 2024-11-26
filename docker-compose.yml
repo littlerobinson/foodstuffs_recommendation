@@ -1,0 +1,88 @@
+services:
+  api:
+    container_name: foodstuffs-recommendation-api
+    environment:
+      - PORT=8881
+    image: foodstuffs-recommendation-api
+    build:
+      context: . # Context to build Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: api # target in Dockerfile
+    volumes:
+      - ./api:/app
+      - ./data:/app/data
+    command: uvicorn main:app --host 0.0.0.0 --port 8881 --reload
+    ports:
+      - "8881:8881"
+    networks:
+      - foodstuffsrecommendationnetwork
+
+  dashboard:
+    container_name: foodstuffs-recommendation-dash
+    environment:
+      - PORT=8882
+      - API_URL=http://foodstuffs-recommendation-api:8881
+    image: foodstuffs-recommendation-dash
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: dashboard
+    volumes:
+      - ./dashboard:/app
+      - ./data:/app/data
+
+    ports:
+      - "8882:8882"
+    networks:
+      - foodstuffsrecommendationnetwork
+
+  mlflow:
+    container_name: foodstuffs-recommendation-mlflow
+    environment:
+      - PORT=8883
+    image: foodstuffs-recommendation-mlflow
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: mlflow
+    ports:
+      - "8883:8883"
+    networks:
+      - foodstuffsrecommendationnetwork
+
+  python-cli:
+    container_name: python-cli
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: python-cli
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+
+  python-cli-3.8:
+    container_name: python-cli-3.8
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: python-cli-3.8
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+
+  python-gpu-cli-3.8:
+    container_name: python-gpu-cli-3.8
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: python-gpu-cli-3.8
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+
+networks:
+  foodstuffsrecommendationnetwork:
+    driver: bridge
