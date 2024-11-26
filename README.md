@@ -86,22 +86,22 @@ project-root/
 - **Datasets**: Place any required datasets in the `data` directory.
 - **Exploratory Analysis**: Jupyter notebooks for research are available in the `notebooks` directory.
 
-### 🧪 Makefile Documentation
+## 🧪 Makefile Documentation
 
 This Makefile provides commands to manage the Docker environment, run scripts, load data, and handle project dependencies.
 
 ---
 
-#### Variables
+### Variables
 
 - **`ML_CONFIG_PATH`**: Path to the YAML configuration file for training (`training/config.yaml`).
 - **`SECRET_FILE`**: Path to the secrets file (`secrets.sh`).
 
 ---
 
-#### Commands
+### Commands
 
-##### Docker Management
+#### Docker Management
 
 - **`make docker_up`**  
   Build and start the Docker environment.  
@@ -128,7 +128,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Secrets Management
+#### Secrets Management
 
 - **`make export_secrets`**  
   Load and export environment secrets from `secrets.sh`.  
@@ -139,7 +139,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Command Line Access
+#### Command Line Access
 
 - **`make run_docker_cli`**  
   Open a shell in the Docker container for the Python CLI.  
@@ -150,7 +150,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Dependency Management
+#### Dependency Management
 
 - **`make install_deps`**  
   Install dependencies using Poetry and download the `en_core_web_sm` spaCy model.  
@@ -161,7 +161,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Data Loading and Processing
+#### Data Loading and Processing
 
 - **`make load_data`**  
   Load raw data from the database using the configuration file.  
@@ -188,7 +188,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Machine Learning Pipeline and clustering
+#### Machine Learning Pipeline and clustering
 
 - **`make train_mlflow`**  
   Run training with MLFlow monitoring.  
@@ -215,7 +215,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Database
+#### Database
 
 - **`make create_text_api_database`**  
   Create the text database for the API.  
@@ -227,7 +227,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Testing and Cleanup
+#### Testing and Cleanup
 
 - **`make run_tests`**  
   Run all unit and integration tests in the project.  
@@ -246,7 +246,7 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Help
+#### Help
 
 - **`make help`**  
   Display a list of available Makefile commands.  
@@ -257,12 +257,12 @@ This Makefile provides commands to manage the Docker environment, run scripts, l
 
 ---
 
-##### Example
+#### Example
 
 If you want to start the services and train the model in one go, you can use:
 
 ```bash
-make docker_up && make run
+make docker_up && make train
 ```
 
 ## 🚀 Usage
