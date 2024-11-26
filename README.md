@@ -91,7 +91,7 @@ project-root/
 
 ## 🌐 Online demo
 
-- [https://food-reco-dashboard.luciole.dev/docs](https://food-reco-dashboard.luciole.dev)
+- [https://food-reco-dashboard.luciole.dev](https://food-reco-dashboard.luciole.dev)
 
 ## 🔧 Development and Model Training
 
