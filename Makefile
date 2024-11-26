@@ -92,6 +92,12 @@ image_clustering:
 	@echo "Running clustering on image..."
 	poetry run python scripts/image_clustering.py --config $(ML_CONFIG_PATH)
 
+# Find opitmal cluster on image
+find_image_best_cluster:
+	@echo "Running clustering on image..."
+	poetry run python scripts/parameters_tuning_image.py --config $(ML_CONFIG_PATH)
+
+
 ###############################################################################
 # Database and Clustering
 ###############################################################################
