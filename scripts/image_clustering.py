@@ -56,7 +56,7 @@ def main(config_path: str):
     # Load configuration from file
     config = load_config(config_path)
 
-    df_path = config["data"]["production_data_path"]
+    df_path = config["data"]["production_image_data_api_path"]
     embedding_prefix = config["data"]["embedding_prefix"]
     save_df_path = config["data"]["production_image_data_api_path"]
     n_clusters = config["image_training"]["n_clusters"]
