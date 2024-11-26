@@ -71,6 +71,11 @@ run_add_embeddings:
 	@echo "Add embeddings on the dataset from the image files using python 3.8 ..."
 	docker compose exec python-cli-3.8 python scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
 
+# Run python cli 3.8 with gpu compatibility (WIP)
+run_add_embeddings_gpu:
+	@echo "Add embeddings on the dataset from the image files using python 3.8 ..."
+	docker run --rm -it -v "./:/app" foodstuffs-recommendation-python-gpu-cli-3.8 scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
+
 ###############################################################################
 # Machine Learning Pipeline
 ###############################################################################

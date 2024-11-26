@@ -16,6 +16,9 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
+###############################################################################
+# mlflow
+###############################################################################
 FROM python:3.12.7-slim-bookworm AS mlflow
 
 # ENV variables
@@ -37,6 +40,7 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 # Update and install needed packages
 RUN apt-get update
 RUN apt-get install -y curl unzip git
+RUN rm -rf /var/lib/apt/lists/*
 
 # Install AWS CLI for remote use
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"
@@ -64,6 +68,7 @@ ENV VIRTUAL_ENV=/venv/.venv \
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 RUN apt-get update && apt-get install -y curl & apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY ./dashboard /app
 COPY ./data/production/database_text_api.csv /app/data/production/database_text_api.csv
@@ -86,6 +91,7 @@ ENV VIRTUAL_ENV=/venv/.venv \
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 RUN apt-get update & apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY ./api /app
 COPY ./data/production/database_text_api.csv /app/data/production/database_text_api.csv
@@ -100,6 +106,7 @@ FROM python:3.12.7-slim-bookworm AS python-cli
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y make
+RUN rm -rf /var/lib/apt/lists/*
 
 # Install poetry
 RUN pip install poetry==1.8.4
@@ -121,6 +128,7 @@ FROM python:3.8.20-slim-bullseye AS python-cli-3.8
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y make && apt install -y libusb-1.0-0
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY ./docker/requirements.txt .
 
@@ -129,3 +137,27 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY Makefile /app
 
 CMD ["bash"]
+
+###############################################################################
+# python-cli-3.8 with gpu compatibility - Not working
+###############################################################################
+FROM tensorflow/tensorflow:2.12.0-gpu AS python-gpu-cli-3.8
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    make \
+    libusb-1.0-0 \
+    python3.8 \
+    python3.8-distutils \
+    python3-pip
+
+RUN rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip setuptools wheel
+
+COPY ./docker/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+ENTRYPOINT [ "python3" ]
