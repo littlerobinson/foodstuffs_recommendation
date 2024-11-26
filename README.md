@@ -80,6 +80,9 @@ project-root/
    - **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
    - **MLflow**: [http://localhost:8883](http://localhost:8883) 📈
 
+5. **Online demo**:
+   - [https://food-reco-dashboard.luciole.dev/docs](https://food-reco-dashboard.luciole.dev)
+
 ## 🔧 Development and Model Training
 
 - **Model Training**: Run training scripts located in the `training` directory.
