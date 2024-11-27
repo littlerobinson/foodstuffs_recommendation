@@ -29,7 +29,7 @@ def update_config(config_path, n_clusters, encoding_method_name):
 
 def main(config_path):
     # Define the range of n_clusters and encoding methods
-    n_clusters_range = range(200, 1100, 100)
+    n_clusters_range = range(100, 1000, 100)
     encoding_methods = ["svd", "pca"]
 
     # Iterate over the combinations of n_clusters and encoding methods
