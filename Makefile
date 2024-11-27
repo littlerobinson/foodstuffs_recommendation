@@ -85,6 +85,10 @@ train_mlflow: export_secrets
 	@echo "Run MLFlow..."
 	poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
 
+train_full_text_mlflow: export_secrets
+	@echo "Run Full MLFlow..."
+	poetry run python scripts/full_train_text.py --config $(ML_CONFIG_PATH)
+
 # Run the main machine learning training pipeline for text
 train: export_secrets
 	@echo "Running the main project pipeline..."

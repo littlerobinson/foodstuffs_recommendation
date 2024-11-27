@@ -95,6 +95,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 COPY ./api /app
 COPY ./data/production/database_text_api.csv /app/data/production/database_text_api.csv
+COPY ./data/production/database_image_api.csv /app/data/production/database_image_api.csv
 
 CMD uvicorn main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 90
 

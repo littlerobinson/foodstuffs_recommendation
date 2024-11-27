@@ -175,7 +175,7 @@ class Training:
 
         return kmeans, features, metrics, labels
 
-    def train_dbscan(self, df, eps=0.5, min_samples=5, metric="euclidean"):
+    def train_dbscan(self, df, eps=3, min_samples=64, metric="euclidean"):
         """
         Applies DBSCAN clustering on encoded and normalized data.
 
@@ -202,25 +202,12 @@ class Training:
         dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric=metric)
         labels = dbscan.fit_predict(features)
 
-        silhouette_metric = (
-            silhouette_score(features, labels) if len(set(labels)) > 1 else None
-        )
-        davies_bouldin_metric = (
-            davies_bouldin_score(features, labels) if len(set(labels)) > 1 else None
-        )
-        calinski_harabasz_metric = (
-            calinski_harabasz_score(features, labels) if len(set(labels)) > 1 else None
-        )
-
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
         n_noise = list(labels).count(-1)
 
         metrics = {
-            "silhouette_metric": silhouette_metric,
-            "davies_bouldin_metric": davies_bouldin_metric,
-            "calinski_harabasz_metric": calinski_harabasz_metric,
             "n_clusters": n_clusters,
             "n_noise": n_noise,
         }
 
-        return dbscan, metrics, labels
+        return dbscan, features, metrics, labels
