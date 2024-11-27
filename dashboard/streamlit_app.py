@@ -88,7 +88,7 @@ def load_database():
     return lazy_df
 
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def search(search_term):
     lazy_df = load_database()
     return (
@@ -104,7 +104,7 @@ def search(search_term):
     )
 
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def get_similar_products_text(product_code, allergen=None, top_n=10):
     body = {"code": product_code, "top_n": top_n, "allergen": allergen}
     response = requests.post(f"{API_URL}/product/find_similar_products_text", json=body)
@@ -114,7 +114,7 @@ def get_similar_products_text(product_code, allergen=None, top_n=10):
         raise APIError(response.status_code, f"API Error: {response.status_code}")
 
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def get_similar_products_image(product_code, top_n=10):
     body = {"code": product_code, "top_n": top_n}
     response = requests.post(
@@ -211,9 +211,7 @@ if __name__ == "__main__":
         "🚨 **Attention**: Veuillez vérifier attentivement le contenu des ingrédients et les traces d'allergènes avant de consommer les produits recommandés. 🚨"
     )
 
-    st.subheader(
-        "Recherchez le code d'un produit"
-    )
+    st.subheader("Recherchez le code d'un produit")
     filtered_df = pl.DataFrame(data=[]).to_pandas()  # Init empty dataframe
 
     # Champs de recherche
@@ -278,7 +276,7 @@ if __name__ == "__main__":
         # Dictionnaire des allergènes les plus courants
 
         allergens = {
-            # "None": "Aucun",
+            "None": "Aucun",
             "en:milk": "Lait",
             "en:peanuts": "Arachides",
             "en:gluten": "Gluten",
