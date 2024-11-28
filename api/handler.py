@@ -281,8 +281,12 @@ def find_similar_products_img(
     embedding_prefix = "embedding_"
     cluster_column = "cluster_emb"
 
+    schema_overrides = {"code": pl.Utf8}
+
     # Load the DataFrame
-    df = pl.scan_csv("./data/production/database_image_api.csv")
+    df = pl.scan_csv(
+        "./data/production/database_image_api.csv", schema_overrides=schema_overrides
+    )
 
     # Check that the required columns exist
     embedding_columns = [col for col in df.columns if col.startswith(embedding_prefix)]
@@ -292,7 +296,7 @@ def find_similar_products_img(
         )
 
     # Find the entry for the given product
-    target_row = df.filter(pl.col(product_code_column) == product_code).collect()
+    target_row = df.filter(pl.col(product_code_column) == str(product_code)).collect()
     if target_row.is_empty():
         raise ValueError(
             f"The product with the code '{product_code}' does not exist in the DataFrame."
@@ -311,7 +315,7 @@ def find_similar_products_img(
 
     # Remove the target product row from the cluster to avoid self-comparison
     cluster_products = cluster_products.filter(
-        pl.col(product_code_column) != product_code
+        pl.col(product_code_column) != str(product_code)
     )
 
     # Compute cosine similarities with products in the cluster
