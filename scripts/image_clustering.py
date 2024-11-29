@@ -60,34 +60,38 @@ def main(config_path: str):
     embedding_prefix = config["data"]["embedding_prefix"]
     save_df_path = config["data"]["production_image_data_api_path"]
     n_clusters = config["image_training"]["n_clusters"]
-    mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
-    mlflow_tracking_uri = config["training"]["mlflow_tracking_uri"]
-    mlflow_model_name = config["training"]["mlflow_model_name"]
+    # mlflow_experiment_name = config["training"]["mlflow_experiment_name"]
+    # mlflow_tracking_uri = config["training"]["mlflow_tracking_uri"]
+    # mlflow_model_name = config["training"]["mlflow_model_name"]
 
-    mlflow.set_tracking_uri(mlflow_tracking_uri)
-    mlflow.set_experiment(mlflow_experiment_name)
+    # mlflow.set_tracking_uri(mlflow_tracking_uri)
+    # mlflow.set_experiment(mlflow_experiment_name)
 
-    mlflow.autolog(log_models=False)
-    experiment = mlflow.get_experiment_by_name(mlflow_experiment_name)
-    with mlflow.start_run(experiment_id=experiment.experiment_id) as run:
-        model, metrics, labels = perform_clustering(
-            df_path, embedding_prefix, n_clusters, save_df_path
-        )
-        for metric in metrics:
-            mlflow.log_metric(metric, metrics[metric])
-        cluster_count = np.unique(labels).size
-        mlflow.log_metric("cluster_count", cluster_count)
+    # mlflow.autolog(log_models=False)
+    # experiment = mlflow.get_experiment_by_name(mlflow_experiment_name)
+    # with mlflow.start_run(experiment_id=experiment.experiment_id) as run:
+    #     model, metrics, labels = perform_clustering(
+    #         df_path, embedding_prefix, n_clusters, save_df_path
+    #     )
+    #     for metric in metrics:
+    #         mlflow.log_metric(metric, metrics[metric])
+    #     cluster_count = np.unique(labels).size
+    #     mlflow.log_metric("cluster_count", cluster_count)
 
-        # Generate signature
-        mlflow_signature = get_signature(df_path, embedding_prefix)
+    #     # Generate signature
+    #     mlflow_signature = get_signature(df_path, embedding_prefix)
 
-        # Log the sklearn model and register as version
-        mlflow.sklearn.log_model(
-            sk_model=model,
-            artifact_path=mlflow_experiment_name,
-            registered_model_name=mlflow_model_name,
-            signature=mlflow_signature,
-        )
+    #     # Log the sklearn model and register as version
+    #     mlflow.sklearn.log_model(
+    #         sk_model=model,
+    #         artifact_path=mlflow_experiment_name,
+    #         registered_model_name=mlflow_model_name,
+    #         signature=mlflow_signature,
+    #     )
+
+    model, metrics, labels = perform_clustering(
+        df_path, embedding_prefix, n_clusters, save_df_path
+    )
 
 
 if __name__ == "__main__":

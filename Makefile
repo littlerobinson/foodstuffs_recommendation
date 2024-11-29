@@ -71,6 +71,11 @@ run_add_embeddings:
 	@echo "Add embeddings on the dataset from the image files using python 3.8 ..."
 	docker compose exec python-cli-3.8 python scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
 
+# Run python cli 3.8 with gpu compatibility (WIP)
+run_add_embeddings_gpu:
+	@echo "Add embeddings on the dataset from the image files using python 3.8 ..."
+	docker run --rm -it -v "./:/app" foodstuffs-recommendation-python-gpu-cli-3.8 scripts/image_prepocessing.py --config $(ML_CONFIG_PATH)
+
 ###############################################################################
 # Machine Learning Pipeline
 ###############################################################################
@@ -79,6 +84,10 @@ run_add_embeddings:
 train_mlflow: export_secrets
 	@echo "Run MLFlow..."
 	poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
+
+train_full_text_mlflow: export_secrets
+	@echo "Run Full MLFlow..."
+	poetry run python scripts/full_train_text.py --config $(ML_CONFIG_PATH)
 
 # Run the main machine learning training pipeline for text
 train: export_secrets
