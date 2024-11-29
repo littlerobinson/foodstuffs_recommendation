@@ -88,7 +88,6 @@ def load_database():
     return lazy_df
 
 
-@st.cache_data(show_spinner=False)
 def search(search_term):
     lazy_df = load_database()
     return (
@@ -104,7 +103,6 @@ def search(search_term):
     )
 
 
-@st.cache_data(show_spinner=False)
 def get_similar_products_text(product_code, allergen=None, top_n=10):
     body = {"code": product_code, "top_n": top_n, "allergen": allergen}
     response = requests.post(f"{API_URL}/product/find_similar_products_text", json=body)
@@ -114,7 +112,6 @@ def get_similar_products_text(product_code, allergen=None, top_n=10):
         raise APIError(response.status_code, f"API Error: {response.status_code}")
 
 
-@st.cache_data(show_spinner=False)
 def get_similar_products_image(product_code, top_n=10):
     body = {"code": product_code, "top_n": top_n}
     response = requests.post(

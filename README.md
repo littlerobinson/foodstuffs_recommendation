@@ -73,22 +73,6 @@ project-root/
    wget https://static.openfoodfacts.org/data/raw/en.openfoodfacts.org.products.csv.gz -P data/raw
    ```
 
-3. **Build and start the containers**:
-
-   With Docker and Docker Compose installed, start the application by running:
-
-   ```bash
-   make docker_up
-   ```
-
-   This command will build and start the API, dashboard, and MLflow services as defined in the `docker-compose.yml` file.
-
-4. **Accessing the Services**:
-
-   - **API**: [http://localhost:8881](http://localhost:8881) 🧑‍🍳
-   - **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
-   - **MLflow**: [http://localhost:8883](http://localhost:8883) 📈
-
 ## 🌐 Online demo
 
 - [https://food-reco-dashboard.luciole.dev](https://food-reco-dashboard.luciole.dev)
@@ -284,6 +268,12 @@ After starting the services, you can:
 - **API**: Make POST requests with product data to receive similar product recommendations.
 - **Dashboard**: Interactively explore and visualize product recommendations.
 - **MLflow**: Track metrics, hyperparameters, and model performance.
+
+Access to the services :
+
+- **API**: [http://localhost:8881](http://localhost:8881) 🧑‍🍳
+- **Dashboard**: [http://localhost:8882](http://localhost:8882) 📊
+- **MLflow**: [http://localhost:8883](http://localhost:8883) 📈
 
 Enjoy discovering new products and exploring healthier, allergen-free, or eco-friendly alternatives! 🥳
 
