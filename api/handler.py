@@ -132,6 +132,7 @@ async def find_similar_products_text(code, allergen=None, top_n=10):
         )
 
     # 5. Select only numeric columns for similarity calculation
+    # @todo: add categorial vectorized feature to improve research but low perf
     similar_cluster_numeric_features = similar_cluster_products.select(
         NUMERIC_COLUMNS
     ).to_numpy()
