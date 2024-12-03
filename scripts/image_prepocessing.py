@@ -53,7 +53,7 @@ def get_image_embedding(image_path):
         return None
 
 
-def get_all_image_embeddings(df_path, code_column, save_dir):
+def get_all_image_embeddings(df_path, code_column, save_dir, save_df):
     """
     Génère des embeddings pour toutes les images déjà téléchargées localement.
 
@@ -69,13 +69,13 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     embeddings = []
     embeddings_array = []
     img_download = 25000
-    
+
     # Check if embedding is already loaded
     embedding_columns = [col for col in df.columns if col.startswith("embedding_")]
     if embedding_columns:
         logger.info("Embeddings have been already loaded.")
         return df
-    
+
     for index, row in df.iterrows():
         code = row[code_column]
         image_path = os.path.join(save_dir, f"{code}.jpg")
@@ -123,7 +123,7 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     # Concatenate the new columns with the original DataFrame
     df = pd.concat([df.drop(columns=["embedding_array"]), embedding_columns], axis=1)
 
-    df.to_csv(df_path, index=False)
+    df.to_csv(save_df, index=False)
 
 def main(config_path: str):
     # Load configuration from file
@@ -131,9 +131,10 @@ def main(config_path: str):
 
     df_path = config["data"]["production_data_path"]
     code_column = config["data"]["code_column"]
-    save_dir = config["data"]["images_path"]
+    save_dir_images = config["data"]["images_path"]
+    save_df_with_embedding = config["data"]["production_image_data_api_path"]
 
-    get_all_image_embeddings(df_path, code_column=code_column, save_dir=save_dir,)
+    get_all_image_embeddings(df_path, code_column=code_column, save_dir=save_dir_images,save_df = save_df_with_embedding)
 
 
 if __name__ == "__main__":
