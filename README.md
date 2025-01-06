@@ -91,6 +91,14 @@ project-root/
 source secrets.sh
 ```
 
+```bash
+make install_deps
+```
+
+```bash
+make train
+```
+
 ## 🧪 Makefile Documentation
 
 This Makefile provides commands to manage the Docker environment, run scripts, load data, and handle project dependencies.

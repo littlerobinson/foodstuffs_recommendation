@@ -52,6 +52,13 @@ services:
 
   python-cli:
     container_name: python-cli
+    environment:
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ARTIFACT_S3_URI: ${AWS_ARTIFACT_S3_URI}
+      BACKEND_STORE_URI: ${BACKEND_STORE_URI}
+      MLFLOW_EXPERIMENT_NAME: ${MLFLOW_EXPERIMENT_NAME}
     build:
       context: .
       dockerfile: ./docker/Dockerfile

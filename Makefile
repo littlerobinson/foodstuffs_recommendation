@@ -25,16 +25,6 @@ docker_logs:
 	docker compose logs -f
 
 ###############################################################################
-# Secrets Management
-###############################################################################
-
-# Export secrets
-export_secrets:
-	@echo "Export secrets..."
-	@chmod +x $(SECRET_FILE)
-	@bash -c "source $(SECRET_FILE)"
-
-###############################################################################
 # Command Line Access
 ###############################################################################
 
@@ -82,18 +72,17 @@ run_add_embeddings_gpu:
 ###############################################################################
 
 # Run Training with MLFlow monitoring
-train_mlflow: export_secrets
+train_mlflow:
 	@echo "Run MLFlow..."
 	docker compose exec python-cli poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
 
-train_full_text_mlflow: export_secrets
+train_full_text_mlflow:
 	@echo "Run Full MLFlow..."
 	docker compose exec python-cli poetry run python scripts/full_train_text.py --config $(ML_CONFIG_PATH)
 
 # Run the main machine learning training pipeline for text
-train: export_secrets
+train:
 	@echo "Running the main project pipeline..."
-	# source ./secrets.sh
 	$(MAKE) load_data
 	$(MAKE) mlflow
 
@@ -140,9 +129,6 @@ help:
 	@echo "  make docker_up            - Build and run the Docker environment"
 	@echo "  make docker_down          - Stop all running Docker containers"
 	@echo "  make docker_logs          - View real-time logs from Docker containers"
-	@echo ""
-	@echo "🔑 Secrets Management:"
-	@echo "  make export_secrets       - Load and export environment secrets from secrets.sh"
 	@echo ""
 	@echo "🖥️ Command Line Access:"
 	@echo "  make run_docker_cli       - Open a shell in the Python CLI Docker container"

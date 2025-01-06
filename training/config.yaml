@@ -20,4 +20,4 @@ training:
   mlflow_experiment_name: foodstuffs-recommendation
   mlflow_model_name: kmeans
   mlflow_tracking_uri: https://mlflow.luciole.dev
-  n_clusters: 900
+  n_clusters: 425
