@@ -73,9 +73,11 @@ project-root/
    wget https://static.openfoodfacts.org/data/raw/en.openfoodfacts.org.products.csv.gz -P data/raw
    ```
 
-## 🌐 Online demo
+3. **Install environment**:
 
-- [https://food-reco-dashboard.luciole.dev](https://food-reco-dashboard.luciole.dev)
+   ```bash
+   make install_deps
+   ```
 
 ## 🔧 Development and Model Training
 

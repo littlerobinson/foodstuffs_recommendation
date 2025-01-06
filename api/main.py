@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import router
 
 tags_metadata = [
-    {"name": "data","description": "Show data"},
+    {"name": "data", "description": "Show data"},
     {"name": "machine-learning", "description": "Prediction Endpoint."},
 ]
 

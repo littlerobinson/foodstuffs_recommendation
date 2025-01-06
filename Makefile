@@ -12,11 +12,12 @@ default: help
 # Build and run docker env
 docker_up:
 	@echo "Build and run docker env..."
-	docker compose up --build
+	docker compose up --build -d
 
 # Stop containers
-docker_down:
+docker_stop:
 	@echo "Stop containers..."
+	docker compose stop
 	docker compose down
 
 # Visualize docker logs
@@ -49,8 +50,8 @@ run_docker_cli:
 # Install Python dependencies with Poetry
 install_deps:
 	@echo "Installing dependencies with Poetry..."
-	poetry install
-	poetry run python -m spacy download en_core_web_sm
+	docker compose exec python-cli poetry install
+	docker compose exec python-cli poetry run python -m spacy download en_core_web_sm
 
 ###############################################################################
 # Data Loading and Processing
@@ -59,12 +60,12 @@ install_deps:
 # Load data from raw database
 load_data:
 	@echo "Load raw data..."
-	poetry run python training/main.py --load_data --config $(ML_CONFIG_PATH)
+	docker compose exec python-cli poetry run python training/main.py --load_data --config $(ML_CONFIG_PATH)
 
 # Download all products images
 download_images:
 	@echo "Downloading all the images..."
-	poetry run python scripts/images_downloader.py --config $(ML_CONFIG_PATH)
+	docker compose exec python-cli poetry run python scripts/images_downloader.py --config $(ML_CONFIG_PATH)
 
 # Run python cli 3.8
 run_add_embeddings:
@@ -83,11 +84,11 @@ run_add_embeddings_gpu:
 # Run Training with MLFlow monitoring
 train_mlflow: export_secrets
 	@echo "Run MLFlow..."
-	poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
+	docker compose exec python-cli poetry run python training/main.py --mlflow --config $(ML_CONFIG_PATH)
 
 train_full_text_mlflow: export_secrets
 	@echo "Run Full MLFlow..."
-	poetry run python scripts/full_train_text.py --config $(ML_CONFIG_PATH)
+	docker compose exec python-cli poetry run python scripts/full_train_text.py --config $(ML_CONFIG_PATH)
 
 # Run the main machine learning training pipeline for text
 train: export_secrets
@@ -99,7 +100,7 @@ train: export_secrets
 # Run clustering on image
 image_clustering:
 	@echo "Running clustering on image..."
-	poetry run python scripts/image_clustering.py --config $(ML_CONFIG_PATH)
+	docker compose exec python-cli poetry run python scripts/image_clustering.py --config $(ML_CONFIG_PATH)
 
 ###############################################################################
 # Database and Clustering
@@ -108,7 +109,7 @@ image_clustering:
 # Create text API database
 create_text_api_database:
 	@echo "Create the API database for text script..."
-	poetry run python scripts/create_api_database.py --config $(ML_CONFIG_PATH)
+	docker compose exec python-cli poetry run python scripts/create_api_database.py --config $(ML_CONFIG_PATH)
 
 ###############################################################################
 # Testing and Cleanup
@@ -124,9 +125,9 @@ clean:
 # Run all tests in the project with Poetry
 run_tests:
 	@echo "Running tests..."
-	poetry run python -m unittest discover -s tests/api
+	docker compose exec python-cli poetry run python -m unittest discover -s tests/api
 
-	poetry run python -m unittest discover -s tests/training
+	docker compose exec python-cli poetry run python -m unittest discover -s tests/training
 
 ###############################################################################
 # Help

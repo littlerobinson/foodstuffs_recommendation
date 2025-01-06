@@ -16,8 +16,8 @@ image_training:
 recommandatons:
   top_n: 10
 training:
-  encoding_method_name: svd
+  encoding_method_name: pca
   mlflow_experiment_name: foodstuffs-recommendation
   mlflow_model_name: kmeans
   mlflow_tracking_uri: https://mlflow.luciole.dev
-  n_clusters: 525
+  n_clusters: 900

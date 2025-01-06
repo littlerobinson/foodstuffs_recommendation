@@ -37,7 +37,7 @@ NUMERIC_COLUMNS = [
     "ecoscore_grade",
 ]
 CATEGORIAL_COLUMNS = [
-    "product_name",
+    # "product_name",
     "packaging_tags",
     "categories_tags",
     "ingredients_tags",
