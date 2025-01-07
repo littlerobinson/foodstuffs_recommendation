@@ -92,6 +92,10 @@ source secrets.sh
 ```
 
 ```bash
+make docker_up
+```
+
+```bash
 make install_deps
 ```
 
