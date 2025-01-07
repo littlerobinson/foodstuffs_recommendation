@@ -84,7 +84,7 @@ train_full_text_mlflow:
 train:
 	@echo "Running the main project pipeline..."
 	$(MAKE) load_data
-	$(MAKE) mlflow
+	$(MAKE) train_mlflow
 
 # Run clustering on image
 image_clustering:

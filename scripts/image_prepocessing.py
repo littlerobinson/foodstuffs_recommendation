@@ -9,7 +9,7 @@ from training.utils.logger import setup_logger
 
 import os
 import pandas as pd
-from tflite_support.task import vision ## Run on python 3.8
+from tflite_support.task import vision  ## Run on python 3.8
 import io
 from PIL import Image
 import numpy as np
@@ -28,6 +28,7 @@ print("Path to model files:", path)
 
 # Initialize the embedder model for images
 image_embedder = vision.ImageEmbedder.create_from_file(path)
+
 
 def get_image_embedding(image_path):
     """
@@ -69,13 +70,13 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     embeddings = []
     embeddings_array = []
     img_download = 25000
-    
+
     # Check if embedding is already loaded
     embedding_columns = [col for col in df.columns if col.startswith("embedding_")]
     if embedding_columns:
         logger.info("Embeddings have been already loaded.")
         return df
-    
+
     for index, row in df.iterrows():
         code = row[code_column]
         image_path = os.path.join(save_dir, f"{code}.jpg")
@@ -103,27 +104,33 @@ def get_all_image_embeddings(df_path, code_column, save_dir):
     df["embedding_array"] = embeddings_array
 
     # Check that the `embedding_array` column contains valid values
-    valid_embeddings = df["embedding_array"].apply(lambda x: isinstance(x, np.ndarray) and len(x) > 0)
+    valid_embeddings = df["embedding_array"].apply(
+        lambda x: isinstance(x, np.ndarray) and len(x) > 0
+    )
 
     # Get the length of valid embeddings
     if valid_embeddings.any():
         len_valid_embeddings = len(df.loc[valid_embeddings, "embedding_array"].iloc[0])
-        # print(len_valid_embeddings)
     else:
-        raise ValueError("Aucun embedding valide trouvé dans la colonne 'embedding_array'.")
+        raise ValueError("No valid embedding found in the 'embedding_array' column.")
 
     # Create a new DataFrame for embedding columns
     embedding_columns = pd.DataFrame(
-        df["embedding_array"].apply(
-            lambda x: x if isinstance(x, np.ndarray) and len(x) == len_valid_embeddings else [None] * len_valid_embeddings
-        ).tolist(),
-        columns=[f"embedding_{i}" for i in range(len_valid_embeddings)]
+        df["embedding_array"]
+        .apply(
+            lambda x: x
+            if isinstance(x, np.ndarray) and len(x) == len_valid_embeddings
+            else [None] * len_valid_embeddings
+        )
+        .tolist(),
+        columns=[f"embedding_{i}" for i in range(len_valid_embeddings)],
     )
 
     # Concatenate the new columns with the original DataFrame
     df = pd.concat([df.drop(columns=["embedding_array"]), embedding_columns], axis=1)
 
     df.to_csv(df_path, index=False)
+
 
 def main(config_path: str):
     # Load configuration from file
@@ -133,17 +140,19 @@ def main(config_path: str):
     code_column = config["data"]["code_column"]
     save_dir = config["data"]["images_path"]
 
-    get_all_image_embeddings(df_path, code_column=code_column, save_dir=save_dir,)
+    get_all_image_embeddings(
+        df_path,
+        code_column=code_column,
+        save_dir=save_dir,
+    )
 
 
 if __name__ == "__main__":
     logger.info("Embedding start")
     import argparse
 
-    parser = argparse.ArgumentParser(description="Téléchargement d'images")
-    parser.add_argument(
-        "--config", required=True, help="Chemin du fichier de configuration"
-    )
+    parser = argparse.ArgumentParser(description="download images")
+    parser.add_argument("--config", required=True, help="Configuration file path")
     args = parser.parse_args()
 
     main(args.config)

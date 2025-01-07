@@ -81,7 +81,7 @@ def perform_clustering(df_path, embedding_prefix, n_clusters, save_dir_path):
     if "cluster_emb" in df.columns:
         df = df.drop(columns=["cluster_emb"])
 
-    COLUMN_TO_KEEPS.extend(['cluster_emb'])
+    COLUMN_TO_KEEPS.extend(["cluster_emb"])
 
     # Merge results with the original DataFrame
     df = df.merge(

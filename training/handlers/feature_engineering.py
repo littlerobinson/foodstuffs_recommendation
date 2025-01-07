@@ -99,7 +99,6 @@ def create_preprocessed_features(df):
 
     # Categorials features to treat
     columns_cat = [
-        {"name": "product_name", "lemmatize": False},
         {"name": "packaging_tags", "lemmatize": True},
         {"name": "categories_tags", "lemmatize": True},
         {"name": "ingredients_tags", "lemmatize": True},

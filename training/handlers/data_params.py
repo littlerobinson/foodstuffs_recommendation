@@ -43,7 +43,6 @@ NUMERIC_COLUMNS = [
     "preprocessed_ecoscore_grade",
 ]
 CATEGORIAL_COLUMNS = [
-    "preprocessed_product_name",
     "preprocessed_packaging_tags_lemmatized",
     "preprocessed_categories_tags_lemmatized",
     "preprocessed_ingredients_tags_lemmatized",

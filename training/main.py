@@ -24,28 +24,6 @@ def exit_program():
     sys.exit(0)
 
 
-NUMERIC_COLUMNS = [
-    "energy_100g",
-    "fat_100g",
-    "saturated-fat_100g",
-    "cholesterol_100g",
-    "sugars_100g",
-    "proteins_100g",
-    "salt_100g",
-    "fruits-vegetables-nuts-estimate-from-ingredients_100g",
-    "nutriscore_grade",
-    "ecoscore_grade",
-]
-CATEGORIAL_COLUMNS = [
-    # "product_name",
-    "packaging_tags",
-    "categories_tags",
-    "ingredients_tags",
-    "ingredients_analysis_tags",
-    "main_category",
-]
-
-
 def get_mlflow_signature():
     input_schema = Schema(
         [
